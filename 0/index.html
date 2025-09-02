@@ -1,0 +1,494 @@
+<html>
+	<head>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+		<style>
+			h1 {
+				text-align: center;
+			}
+
+			.container {
+				margin: 0 auto;
+				padding: 60px 20%;
+			}
+
+			figure {
+				text-align: center;
+			}
+
+			img {
+				display: inline-block;
+			}
+
+			body {
+				font-family: 'Inter', sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+		<h1>CS180/280A Fall 2025 Project0</h1>
+		<div style="text-align: center;">Name: Xiangru Huang (3042029019)</div>
+
+		<br>
+
+		Link to webpage: <a href="https://github.com/cal-cs184/hw-webpages-su25-Echoooggu/blob/main/hw1/index.html">Link to webpage</a>
+		
+		<br>
+
+		Link to GitHub repository: <a href="https://github.com/cal-cs184/hw-rasterizer-fishros">Link to Github repository</a>
+
+		<!--
+		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
+		-->
+
+		<h2>Overview</h2>
+			Task1, we implemented basic rasterization, but there were plenty of obvious jaggies.<br>
+			Task2, we used supersampling to deal with the jaggies, and made the edges look smoother.<br>
+			Task3, we used 3 by 3 matrices to transform a 2D figure in homogeneous coordinates.<br>
+			Task4, we used barycentric coordinates interpolation to get the color values of all the points in the triangles.<br>
+			Task5, we implemented texture mapping using pixel sampling with both nearest-neighbor and bilinear interpolation.<br>
+			Task6, we implemented level sampling for texture mapping by computing screen-space derivatives to estimate the appropriate mipmap level,
+			and used nearest or linear interpolation across mip levels to improve rendering quality.<br>
+			Overall, we learned to use different methods for sampling and texture filtering,
+			and see how each of them affects the jaggedness of images and in turn makes the images smoother.
+			The tasks also gave us hands-on experience with transforming shapes using homogeneous coordinates, rasterization, rendering images, and texture filtering.
+			What was interesting was that this was the first time that we see how matrices transform shapes.
+			Previously we only learned to calculate values or to prove theorems,
+			but haven't got any chance to really see the effects of these magical matrices by our eyes. This assignment visualizes those effects.
+
+
+
+
+			<h2>Task 1: Drawing Single-Color Triangles</h2>
+
+			<p><b>(1) How to rasterize?</b><br>
+				- Given the coordinates of the three vertices of the triangle as input.<br>
+				- Get the bounding box of the triangle by getting the minimum and maximum x, y coordinates of the three vertices.<br>
+				- For each pixel within the bounding box, decide whether their centers are within or on the edge of the triangle by using the <code>inside()</code> function.<br>
+				<b>The <code>inside</code> function:</b>
+				- Bool. Decide whether a target pixel center is within the triangle<br>
+				- Given coordinates of the three vertices of the triangle, we fix one of them,
+				then calculate the cross product of each edge and the line between the fixed vertex and the target pixel center.<br>
+				- Return true if the target point is on the same side of each edge of the triangle (i.e. the three cross products are of the same sign).
+			</p>
+
+			<p><b>(2) Explain how your algorithm is no worse than one that checks each sample within the bounding box of the triangle.</b><br>
+				- We check every pixel center within the bounding box once, by using the point-in-triangle test (i.e. the <code>inside()</code> functions).
+				Then fill the pixel with color only if the pixel is within or on the edge of the triangle.<br>
+				- No pixel center outside the bounding box is checked so that we save time and computation.
+			</p>
+
+			<div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+				<figure>
+					<img src="Task1_test4.png" alt="Task 1 result" style="width:300px">
+					<figcaption>Task1 test4</figcaption>
+				</figure>
+				<figure>
+					<img src="Task1_with_inspector.png" style="width: 300px;">
+					<figcaption>Task1 test4 with inspector</figcaption>
+				</figure>
+			</div>
+
+
+
+
+		<h2>Task 2: Antialiasing by Supersampling</h2>
+			<p><b>Supersampling algorithm:</b></p>
+			<ol>
+				<li>Divide each pixel into a grid of subpixels</li>
+				<li>Rasterization: loop through the subpixels and compute their center’s location;
+					then check whether they lie inside the triangle using the <code>inside</code> function;
+					then store the color values of the pixels that are inside the triangle in the <code>sample_buffer</code></li>
+				<li>Resolve to framebuffer: after all the primitives are rasterized into the sample buffer,
+					use <code>resolve_to_framebuffer()</code> to compute the final pixel color.
+					For each pixel, average its subpixel values and write the result into the final framebuffer.</li>
+			</ol>
+
+			<p><b>Data Structures used:</b></p>
+			<ol>
+				<li>std::vector&lt;Color&gt;, sample_buffer: <br><code>sample_buffer</code> stores supersampled color values of all pixels</li>
+				<li>unsigned char: <br><code>rgb_framebuffer_target()</code> is the final framebuffer to be displayed on screen</li>
+				<li>Color</li>
+			</ol>
+
+			<p><b>Modifications:</b></p>
+
+			<ol>
+				<li><p><b><code>set_sample_rate()</code> &amp; <code>set_framebuffer_target()</code>:</b><br></p>
+					Originally, we only stored the color values of each pixel center in the sample_buffer.
+					Now, we resize sample_buffer to store all color values of all pixels, including subpixels.
+				</li>
+				<li><p><b><code>rasterize_triangle()</code>:</b><br></p>
+					Originally, we only stored the color values of each pixel center in the sample_buffer.
+					Now, we resize sample_buffer to store all color values of all pixels, including subpixels.
+				</li>
+				<li><p><b><code>resolve_to_framebuffer()</code>:</b><br></p>
+					After we resized the sample_buffer to contain color values of all pixels,
+					we averaged the color values of each sample_rate times sample_rate grid.
+					Then, the results are written into <code>reb_gramebuffer_target</code>, which is ultimately displayed.
+				</li>
+				<li><p><b><code>fill_pixel()</code>:</b><br></p>
+					Since lines and points are not supersampled,
+					we modified this function to write the same color to all sub-pixels within a pixel when drawing lines and points.
+				</li>
+			</ol>
+
+			<div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+				<figure>
+					<img src="Task2_test4_1.png" width="150px">
+					<figcaption>Task2_test4 with sample rate to be 1</figcaption>
+				</figure>
+				<figure>
+					<img src="Task2_test4_4.png" width="150px">
+					<figcaption>Task2_test4 with sample rate to be 4</figcaption>
+				</figure>
+				<figure>
+					<img src="Task2_test4_16.png" width="150px">
+					<figcaption>Task2_test4 with sample rate to be 16</figcaption>
+				</figure>
+			</div>
+
+			<p><b>Why the results above are observed? <br>
+				-> How does supersampling antialias our triangles? Why is supersampling useful?</b><br>
+				Supersampling means that we sample each pixel multiple times instead of only once as we did without supersampling.
+				We also average the results of sub-pixels within the pixel grid.<br>
+				As a result, the pixel’s color does not only depend on its center or any single point within it,
+				Instead, it depends on several samples, which softens the harsh transition between filled and empty pixels, producing smoother triangle edges without jaggedness.<br>
+				For example, the final color of a pixel partially covered by the triangle is an average between triangle color and the background,
+				and is neither the triangle color nor the background color anymore.
+				This explains the results, where there seems to be more 'blurred' pixels as the sample rate increases.</p>
+
+
+
+
+			<h2>Task 3: Transforms</h2>
+			<p><b>Idea: a dancing Christmas tree</b><br>
+
+			<p><b>Modifications in transform.cpp:</b><br>
+			<section>
+				<p style="font-size: 16px; max-width: 800px;">
+					We implemented affine transformations (rotation,
+					translation, and scaling) by using 3×3 matrices in homogeneous coordinates,
+					where a 2D point (x, y) is transformed to a 3D vector (x, y, 1).
+					This unified representation allows for combining multiple transformations efficiently in the 2D rendering pipeline.
+				</p>
+
+				<div style="display: flex; justify-content: space-around; align-items: flex-start; margin-top: 30px;">
+					<div style="text-align: center;">
+						<h2 style="font-size: 18px;">Rotation</h2>
+						<table style="border-collapse: collapse; margin: 0 auto;">
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">cosθ</td><td style="border: 1px solid #333; padding: 10px 15px;">-sinθ</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td></tr>
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">sinθ</td><td style="border: 1px solid #333; padding: 10px 15px;">cosθ</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td></tr>
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">1</td></tr>
+						</table>
+					</div>
+
+					<div style="text-align: center;">
+						<h2 style="font-size: 18px;">Translation</h2>
+						<table style="border-collapse: collapse; margin: 0 auto;">
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">1</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">dx</td></tr>
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">1</td><td style="border: 1px solid #333; padding: 10px 15px;">dy</td></tr>
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">1</td></tr>
+						</table>
+					</div>
+
+					<div style="text-align: center;">
+						<h2 style="font-size: 18px;">Scaling</h2>
+						<table style="border-collapse: collapse; margin: 0 auto;">
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">sx</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td></tr>
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">sy</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td></tr>
+							<tr><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">0</td><td style="border: 1px solid #333; padding: 10px 15px;">1</td></tr>
+						</table>
+					</div>
+				</div>
+			</section>
+
+			<p><b>Modifications in robot.svg:</b><br>
+			<ol>
+				<li><b>Head</b>
+					<ul>
+						<li>Deleted a polygon</li>
+						<li>Color: changed the original red to Christmas red <code>#C8102E</code> by adjusting the code for <code>fill</code></li>
+						<li>Adjusted the three vertices of the triangle by modifying the <code>points</code> attribute</li>
+					</ul>
+				</li>
+
+				<li><b>Right hand</b>
+					<ul>
+						<li>Rotated the two polygons together by 45 degrees counterclockwise</li>
+						<li>Color: changed the original red to Christmas green <code>#007A33</code> by adjusting the code for <code>fill</code></li>
+					</ul>
+				</li>
+
+				<li><b>Right leg</b>
+					<ul>
+						<li>Rotated the two polygons together by 45 degrees clockwise</li>
+						<li>Rotated the lower polygon by 90 degrees counterclockwise</li>
+						<li>Color: changed the original red to brown <code>#8B4513</code> by adjusting the code for <code>fill</code></li>
+					</ul>
+				</li>
+
+				<li><b>Torso</b>
+					<ul>
+						<li>Adjusted two vertices by modifying the <code>points</code> so that the torso looks like a tree trunk</li>
+						<li>Color: changed the original red to Christmas green <code>#007A33</code> by adjusting the code for <code>fill</code></li>
+					</ul>
+				</li>
+
+				<li><b>Left leg</b>
+					<ul>
+						<li>Color: changed the original red to brown <code>#8B4513</code> by adjusting the code for <code>fill</code></li>
+					</ul>
+				</li>
+
+				<li><b>Left hand</b>
+					<ul>
+						<li>Color: changed the original red to Christmas green <code>#007A33</code> by adjusting the code for <code>fill</code></li>
+					</ul>
+				</li>
+			</ol>
+
+			<figure>
+				<img src="Task3.png" alt="a Christmas version cubeman" style="width: 300px;">
+				<figcaption>a Christmas version cubeman</figcaption>
+			</figure>
+
+
+		<h2>Task 4: Barycentric coordinates</h2>
+
+			<p>
+				Barycentric coordinates are a way to represent any point inside a triangle as a weighted average of the color values of its three vertices.
+				If we have a triangle with vertices A, B, and C, and an arbitrary point P inside it, then P can be written as:
+			</p>
+
+			<p style="text-align: center; font-size: 18px;">
+				<strong>P = αA + βB + γC</strong>
+			</p>
+
+			<p>Where:</p>
+			<ul>
+				<li><strong>α + β + γ = 1</strong></li>
+				<li><strong>α, β, γ ≥ 0</strong> if P is inside the triangle or on the edge of the triangle</li>
+			</ul>
+
+			<p>
+				Each of the weights α, β, γ describes how "close" the point is to one of the triangle’s corners.
+				For example, if α is close to 1, the point P is close to vertex A.
+			</p>
+
+			<p>
+				In the image below (from Google), we have a triangle with three vertices A, B, and C.
+				Each vertex has weights (like 1kg bags) "attached" to it, simulating gravitational pull.
+				These weights represent the influence each vertex has over an arbitrary point P, which is the red point below.
+			</p>
+
+			<figure style="text-align: center;">
+				<img src="barycentric_coordinates_visual_aid.jpg" alt="Barycentric Coordinates Example" width="300">
+				<figcaption>barycentric coordinates visual aid</figcaption>
+			</figure>
+
+				<p>
+					Algorithms of Task4:
+				</p>
+
+				<ol>
+					<li>Get the bounding box of the triangle to limit the sampling region.</li>
+					<li>For each pixel within the bounding box, loop through all subpixel sample positions.</li>
+					<li>Calculate barycentric coordinates (alpha, beta, gamma) for each sample using the formulas below, which are mentioned in lecture.
+					<li>Store the interpolated color values in the sample buffer.
+
+				</li>
+				</ol>
+
+			<figure style="text-align: center;">
+				<img src="formulas.png" alt="formulas" width="300">
+				<figcaption>formulas for calculating the barycentric coordinates</figcaption>
+			</figure>
+
+			<p>Here's our rendered test7.svg with sample rate set to 1:</p>
+
+			<figure style="text-align: center;">
+				<img src="Task4_test7_1.png" alt="Task4 result" width="300">
+				<figcaption>Task4 result with sample rate set to 1</figcaption>
+			</figure>
+
+
+
+		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
+			<section>
+				<h3>Pixel sampling:</h3>
+				<p>
+					Pixel sampling is a way to figure out what color to use when mapping a texture onto a triangle.
+					Since the UV coordinates are usually floating-point values, they don’t point exactly to the center of a texel,
+					so we need to choose how to get the color at that location.
+				</p>
+
+				<h3>How we implemented pixel sampling:</h3>
+				<p>
+					We implemented two types of pixel sampling: nearest and bilinear.
+					In the nearest method, we rounded the UV coordinates to the closest integer and returned the texel color at that exact location.
+					This method is fast and simple, but it can produce blocky results when the texture is zoomed in.
+					On the other hand, the bilinear method interpolates between the four nearest texels.
+					It uses the fractional parts of the UV coordinates to weigh the contribution of each of those four colors.
+					The result is much smoother and looks better, especially when textures are stretched or viewed at an angle.
+				</p>
+
+				<section style="margin-top: 40px;">
+
+					<p>Nearest Sampling: <code>Texture::sample_nearest(Vector2D uv, int level)</code></p>
+					<ol>
+						<li>Retrieve the texture image at mipmap level 0.</li>
+						<li>Get the pixel width and height of the image.</li>
+						<li>Convert the normalized uv coordinates to integer pixel coordinates, locating them at the center of the nearest texel.</li>
+						<li>Clamp the computed pixel coordinates to ensure that x and y are within the range [0, width - 1] and [0, height - 1].</li>
+						<li>Return the color at pixel (x, y) using mip.get_texel(x, y).</li>
+					</ol>
+
+					<p>Bilinear Sampling: <code>Texture::sample_bilinear(Vector2D uv, int level)</code></p>
+					<ol>
+						<li>Retrieve the texture image at the specified mipmap level.</li>
+						<li>
+							Calculate floating-point pixel coordinates:
+							<br><code>
+							float x = uv.x * width - 0.5f;<br>
+							float y = uv.y * height - 0.5f;</code>
+						</li>
+						<li>Identify the four surrounding integer texels around (x, y), starting from the bottom-left corner: (x0, y0), (x1, y0), (x0, y1), (x1, y1).</li>
+						<li>Compute relative positions within the texel grid: sx = x - x0, sy = y - y0.</li>
+						<li>Extract the colors at the four corners: c00 (bottom-left), c10 (bottom-right), c01 (top-left), c11 (top-right).</li>
+						<li>Interpolate horizontally using sx: blend between c00 and c10, and between c01 and c11.</li>
+						<li>Interpolate vertically using sy between the two horizontal results to get the final color.</li>
+					</ol>
+
+				</section>
+
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; text-align: center;">
+					<div>
+						<h5>nearest; sample rate: 1</h5>
+						<img src="Task5_nearest_1.png" style="width: 100%; max-width: 300px;">
+					</div>
+					<div>
+						<h5>bilinear; sample rate: 1</h5>
+						<img src="Task5_bilinear_1.png" style="width: 100%; max-width: 300px;">
+					</div>
+					<div>
+						<h5>nearest; sample rate: 16</h5>
+						<img src="Task5_nearest_16.png" style="width: 100%; max-width: 300px;">
+					</div>
+					<div>
+						<h5>bilinear; sample rate: 16</h5>
+						<img src="Task5_bilinear_16.png" style="width: 100%; max-width: 300px;">
+					</div>
+				</div>
+
+				<div style="margin-top: 30px;">
+					<h3>Differences</h3>
+					<p>
+						The relative difference between nearest and bilinear sampling mostly shows up when the texture is being magnified
+						or when there are sharp color changes in the texture (like black and white checkerboards).
+					</p>
+					<p>
+						Nearest sampling simply picks the color of the closest texel. This can lead to a blocky and pixelated appearance,
+						especially when a texture is zoomed in. There’s no blending at all, so the edges between texels can appear harsh and unnatural.
+					</p>
+					<p>
+						Bilinear sampling blends the four surrounding texels based on how close the UV coordinate is to each of them.
+						This results in smooth transitions between colors, which reduces aliasing and makes the texture look more natural.
+						The improvement is especially noticeable on gradients or detailed textures viewed at an angle or under high zoom.
+					</p>
+				</div>
+			</section>
+
+
+
+
+			<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
+
+			<section style="margin-top: 40px;">
+
+				<p><strong>Level sampling：</strong></p>
+				<p>
+					Level sampling is a technique used in texture mapping to decide which mipmap level to sample from. It helps reduce aliasing and improves texture quality, especially when the object is far away or seen at a steep angle. In this task, we implemented three types of level sampling: L_ZERO, L_NEAREST, and L_LINEAR.<br>
+					For L_ZERO, we always sample from the base level (level 0), which is simple but can cause aliasing when the texture appears small. For L_NEAREST, we computed the mipmap level using the screen-space derivatives of the UV coordinates, then round it to the nearest integer and use that level. For L_LINEAR, we compute the level as a float, then sample from two adjacent mipmap levels and blend them based on the fractional part.<br>
+					To calculate the level, we implemented the get_level() function, which computes the difference between nearby UV coordinates and scales it using the texture resolution. This gives us an estimate of how much detail is needed. Finally, we modified sample() to use the selected sampling level and pixel sampling method (nearest or bilinear).
+				</p>
+
+				<p><strong>Tradeoffs between speed, memory usage, and antialiasing power：</strong></p>
+				<p>
+					1. Speed<br>
+					L_ZERO is the fastest because it always samples from level 0, without doing any extra calculation.<br>
+					L_NEAREST is slightly slower since it needs to compute the mipmap level once for each sample.<br>
+					L_LINEAR is the slowest because it samples from two mipmap levels and blends the results.
+				</p>
+				<p>
+					2. Memory Usage<br>
+					L_ZERO uses the least memory because it only accesses the base level of the texture.<br>
+					L_NEAREST still uses little memory, but it may access different mipmap levels depending on the screen space.<br>
+					L_LINEAR uses more memory since it fetches from two levels at once and blends between them.
+				</p>
+				<p>
+					3. Antialiasing Power<br>
+					L_ZERO has poor antialiasing and causes lots of aliasing, especially when zoomed out.<br>
+					L_NEAREST improves antialiasing by using a better matching mipmap level, but it’s still a hard switch between levels.<br>
+					L_LINEAR has the best antialiasing because it smoothly blends between levels, avoiding sharp transitions and aliasing.
+				</p>
+
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; text-align: center;">
+					<div>
+						<h5>Task6: L_ZERO, P_NEAREST</h5>
+						<img src="Task6_L_ZERO_P_NEAREST.png" style="width: 100%; max-width: 300px;">
+					</div>
+					<div>
+						<h5>Task6: L_ZERO, P_LINEAR</h5>
+						<img src="Task6_L_ZERO_P_LINEAR.png" style="width: 100%; max-width: 300px;">
+					</div>
+					<div>
+						<h5>Task6: L_NEAREST, P_NEAREST</h5>
+						<img src="Task6_L_NEAREST_P_NEAREST.png" style="width: 100%; max-width: 300px;">
+					</div>
+					<div>
+						<h5>Task6: L_NEAREST, P_LINEAR</h5>
+						<img src="Task6_L_NEAREST_P_LINEAR.png" style="width: 100%; max-width: 300px;">
+					</div>
+				</div>
+
+				<div>
+					<p><strong>Ps. Issue Report: Mipmap Level Sampling Not Working on Custom PNGs</strong></p>
+
+					<p>Problem Description<br>
+						There have been many issues bothering us along the way, but this one particularly occupied a lot of our time,
+						so we wrote a report about this problem.<br>
+						When using our own .png texture file and switching between L_ZERO, L_NEAREST,
+						and L_LINEAR level sampling modes (by pressing the L key), the image remains unchanged.
+						In contrast, switching modes using the instructor-provided textures produces noticeable differences.</p>
+
+					<p>Cause:<br>
+						After debugging, we discovered that our custom PNG textures did not generate mipmap levels properly.
+						This is because the mipmap hierarchy (Texture::mipmap) is only created if the texture
+						is properly loaded and generate_mips() is called on it.
+						Some custom PNGs may not be preprocessed correctly or might not have had generate_mips() triggered,
+						leading to only the base level (level 0) being available.
+						Therefore, any L_NEAREST or L_LINEAR mode would fallback to level 0 and appear identical to L_ZERO.</p>
+
+					<p>Solution:<br>
+						We ensured that the loaded image has sufficient resolution and visual structure (e.g., patterns, lines)
+						so that mipmapping produces distinguishable results.<br>
+						After making adjustments, the level sampling behavior started working properly with our custom PNG textures.</p>
+
+					<p>Conclusion:<br>
+						The problem is related to mipmap level calculation.
+						The issue taught us that mipmapping depends not only on code logic,
+						but also on proper texture setup and preprocessing.
+						In the future, we’ll double-check that custom textures have mipmaps generated and contain enough detail across scales.
+						It’s also a good reminder to always compare outputs using the same consistent and controlled environment.</p>
+				</div>
+
+
+			</section>
+
+
+
+		</div>
+	</body>
+</html>
