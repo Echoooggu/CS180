@@ -1,5 +1,55 @@
 <html lang="en">
 <head>
+<style>
+
+@media print {
+
+    html {
+        zoom: 1 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body, html {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 20px !important;
+    }
+
+    img {
+        display: block !important;
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 10px auto !important;
+    }
+
+    figure, img, h1, h2, h3 {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+}
+</style>
+
+
     <meta charset="UTF-8">
     <title>CS180/280A Project 0</title>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
@@ -86,6 +136,20 @@
         <p>
             ⛱️ In the left image (84mm, zoomed in), the background elements (e.g., umbrellas, chairs, walls) appear closer together.
             In the right image (14mm, no zoom), the background appears much wider and more spaced out due to the wide field of view.
+        </p>
+
+        <p>
+            <strong>Explanation:</strong>
+        </p>
+        <p>
+            When shooting from a close distance with a lens with shorter focal length (14 mm, 20 cm), the relative depth differences between facial features (e.g., nose, eyes, ears) become significant,
+            causing the nose to appear larger and the edges of the face to stretch.
+            In contrast, shooting from farther away with a lens with longer focal length (84 mm, 200 cm) reduces these relative depth differences,
+            making the facial proportions look more natural.
+            Additionally, when keeping the face the same size in the frame,
+            using a longer focal length from farther away compresses the background,
+            making it appear closer and fuller, while a lens with longer focal length from a closer distance
+            creates a wider field of view, making the background look more distant and spacious.
         </p>
 
         <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
