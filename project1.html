@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project 1</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .container {
+      margin: 0 auto;
+      padding: 60px 15%;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    h1 { text-align: center; color: darkgreen; }
+    h2 { color: cadetblue; margin-top: 40px; }
+    h3 { color: teal; margin-top: 20px; }
+    p { color: #000; margin: 8px 0; }
+    /* 图片展示区域 */
+    .image-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .image-item {
+      text-align: center;
+      max-width: 250px;
+    }
+    .image-item img {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .caption {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="project0.html">Project 0</a>
+    <a href="project1.html">Project 1</a>
+    <a href="project2.html">Project 2</a>
+    <a href="project3.html">Project 3</a>
+  </nav>
+
+  <div class="container">
+    <h1>📸 Project 1: Image Alignment</h1>
+
+    <!-- Overview -->
+    <h2>Overview</h2>
+    <p>
+      This code implements a multi-scale image alignment algorithm to reconstruct a color image
+      from three separate grayscale channels (red, green, blue) that may be misaligned due to capture artifacts.
+      The algorithm uses a pyramid-based approach to efficiently align the green and red channels
+      to the blue channel reference.
+    </p>
+
+    <!-- Algorithms -->
+    <h2>Algorithms</h2>
+<h3>1. Image Preparation</h3>
+    <p>
+      - The input image is split into three equal vertical segments representing the blue, green, and red channels.<br>
+      - The blue channel is selected as the reference for alignment.
+    </p>
+
+    <h3>2. Alignment Metric</h3>
+    <p>
+      - Uses Normalized Cross-Correlation (NCC) of Sobel-filtered images as the similarity measure.<br>
+      - Incorporates cropping to avoid border artifacts during comparison.
+    </p>
+
+    <h3>3. Image Pyramid</h3>
+    <p>
+      - Implements an image pyramid approach for efficient coarse-to-fine alignment.<br>
+      - Recursively downsamples images to find approximate alignment at lower resolutions.<br>
+    </p>
+
+    <h3>4. Output</h3>
+    <p>
+      - Combines the aligned channels into a single color image.<br>
+      - Saves and displays the aligned color image.
+    </p>
+
+
+    <!-- Results -->
+    <h2>Results</h2>
+
+    <h3>Low Resolution</h3>
+    <div class="image-grid">
+      <div class="image-item">
+        <img src="project1_images/out_path/out_cathedral.jpg">
+        <div class="caption">cathedral<br>G -> B: ()<br>R -> B: ()</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_monastery.jpg" alt="lowres2">
+        <div class="caption">monastery<br>G -> B: ()<br>R -> B: ()</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_tobolsk.jpg" alt="lowres3">
+        <div class="caption">tobolsk<br>G -> B: ()<br>R -> B: ()</div>
+      </div>
+    </div>
+
+    <h3>High Resolution</h3>
+    <!-- 第一行：2 张 -->
+    <div class="image-grid">
+      <div class="image-item">
+        <img src="project1_images/out_path/out_emir.jpg" >
+        <div class="caption">emir<br>G to B (dx, dy): (49, 24)<br>R to B (dx, dy): (107, 40)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_church.jpg">
+        <div class="caption">church<br>G to B (dx, dy): (25, 4)<br>R to B (dx, dy): (58, -4)</div>
+      </div>
+    </div>
+    <!-- 第二行：3 张 -->
+    <div class="image-grid">
+      <div class="image-item">
+        <img src="project1_images/out_path/out_harvesters.jpg">
+        <div class="caption">harvesters<br>G to B (dx, dy): (60, 17)<br>R to B (dx, dy): (124, 14)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_icon.jpg">
+        <div class="caption">icon<br>G to B (dx, dy): (42, 17)<br>R to B (dx, dy): (90, 23)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_italil.jpg">
+        <div class="caption">italil<br>G to B (dx, dy): (38, 22)<br>R to B (dx, dy): (77, 36)</div>
+      </div>
+    </div>
+    <!-- 第三行：3 张 -->
+    <div class="image-grid">
+      <div class="image-item">
+        <img src="project1_images/out_path/out_lastochikino.jpg">
+        <div class="caption">lastochikino<br>G to B (dx, dy): (-3, -2)<br>R to B (dx, dy): (76, -8)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_lugano.jpg">
+        <div class="caption">lugano<br>G to B (dx, dy): (41, -17)<br>R to B (dx, dy): (92, -29)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_melons.jpg" alt="highres8">
+        <div class="caption">melons<br>G to B (dx, dy): (80, 10)<br>R to B (dx, dy): (177, 13)</div>
+      </div>
+    </div>
+    <!-- 第四行：3 张 -->
+    <div class="image-grid">
+      <div class="image-item">
+        <img src="project1_images/out_path/out_self_portrait.jpg">
+        <div class="caption">self_portrait<br>G to B (dx, dy): (78, 29)<br>R to B (dx, dy): (176, 37)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_siren.jpg">
+        <div class="caption">siren<br>G to B (dx, dy): (49, -6)<br>R to B (dx, dy): (96, -24)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_three_generations.jpg">
+        <div class="caption">three_generations<br>G to B (dx, dy): (54, 12)<br>R to B (dx, dy): (111, 9)</div>
+      </div>
+    </div>
+
+      <h3>A Few Other Images:</h3>
+      <div class="image-grid">
+      <div class="image-item">
+        <img src="project1_images/out_path/out_captain.jpg">
+        <div class="caption">captain<br>G to B (dx, dy): (60, 17)<br>R to B (dx, dy): (124, 14)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_shabby.jpg">
+        <div class="caption">shabby<br>G to B (dx, dy): (60, 17)<br>R to B (dx, dy): (124, 14)</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_mountain.jpg">
+        <div class="caption">mountain<br>G to B (dx, dy): (60, 17)<br>R to B (dx, dy): (124, 14)</div>
+      </div>
+    </div>
+
+    <!-- Problems -->
+    <h2>Problems Encountered</h2>
+    <p>
+      Initially, the alignment results (even the low-resolution ones) were poor because the algorithm did not crop the images before comparison.
+      Without cropping, the black borders introduced by shifting dominated the similarity metric,
+      leading to incorrect alignment. By cropping out the borders (simply set 10%), the metric focuses on the actual image content,
+      resulting in much more accurate alignment.
+    </p>
+
+    <div class="image-grid">
+      <div class="image-item">
+        <img src="project1_images/out_path/out_cathedral_without_crop.jpg" alt="without crop">
+        <div class="caption">cathedral without crop</div>
+      </div>
+      <div class="image-item">
+        <img src="project1_images/out_path/out_cathedral.jpg" alt="with crop">
+        <div class="caption">cathedral with crop</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
