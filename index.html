@@ -2,26 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Projects</title>
-  <link rel="stylesheet" href="style.css">
+  <title>CS180/280A Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #222;
+    }
+
+    /* 顶部导航栏 */
+    nav {
+      width: 100%;
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0.8rem 0;
+    }
+    nav ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #ffeaa7;
+    }
+
+    /* 内容居中 */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding-top: 60px; /* 避开导航栏 */
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #141e30, #243b55);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: #222;
+    }
+  </style>
 </head>
 <body>
 
   <!-- 导航栏 -->
   <nav>
-    <a href="index.html">Home</a>
-    <a href="project0.html">Project 0</a>
-    <a href="project1.html">Project 1</a>
-    <a href="project2.html">Project 2</a>
-    <a href="project3.html">Project 3</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="project0.html">Project 0</a></li>
+      <li><a href="project1.html">Project 1</a></li>
+    </ul>
   </nav>
 
   <!-- 内容 -->
-  <div class="container">
+  <div class="content">
     <h1>Welcome to my CS 180/280A Portfolio!</h1>
     <h2>Fall 2025 | Xiangru Huang</h2>
-    <p></p>
-    <p></p>
   </div>
 
 </body>

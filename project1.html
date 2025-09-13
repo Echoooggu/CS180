@@ -4,21 +4,73 @@
   <meta charset="UTF-8">
   <title>Project 1</title>
   <link rel="stylesheet" href="style.css">
-  <meta charset="UTF-8">
-  <title>Math Formula Example</title>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
-    .container {
-      margin: 0 auto;
-      padding: 60px 15%;
+    body {
+      margin: 0;
       font-family: Arial, sans-serif;
       line-height: 1.6;
+      background: linear-gradient(135deg, white, white); /* 和主页统一背景 */
+      min-height: 100vh;
+    }
+    .image-item {
+  text-align: center;      /* 水平居中 */
+  margin: 20px auto;       /* 给整体加点上下间距 */
+}
+
+.image-item img {
+  max-width: 100%;         /* 保证图片不会超出容器宽度 */
+  height: auto;            /* 等比缩放 */
+  display: inline-block;
+}
+
+.caption {
+  font-size: 14px;
+  color: #555;             /* 字体颜色略浅 */
+  margin-top: 8px;         /* 图片和文字之间的间距 */
+}
+
+
+    /* 导航栏 */
+    nav {
+      width: 100%;
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0.8rem 0;
+    }
+    nav ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #ffeaa7;
+    }
+
+    /* 内容主体 */
+    .container {
+      margin: 100px auto 40px auto; /* 避开导航栏 */
+      padding: 0 15%;
     }
     h1 { text-align: center; color: darkgreen; }
     h2 { color: cadetblue; margin-top: 40px; }
     h3 { color: teal; margin-top: 20px; }
     p { color: #000; margin: 8px 0; }
+
     /* 图片展示区域 */
     .image-grid {
       display: flex;
@@ -45,31 +97,35 @@
   </style>
 </head>
 <body>
+
+  <!-- 导航栏 -->
   <nav>
-    <a href="index.html">Home</a>
-    <a href="project0.html">Project 0</a>
-    <a href="project1.html">Project 1</a>
-    <a href="project2.html">Project 2</a>
-    <a href="project3.html">Project 3</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="project0.html">Project 0</a></li>
+      <li><a href="project1.html">Project 1</a></li>
+    </ul>
   </nav>
 
+  <!-- 页面主体内容 -->
   <div class="container">
     <h1>🎨 Project 1: Images of the Russian Empire -- Colorizing the Prokudin-Gorskii Photo Collection</h1>
     <div style="text-align: center; margin-bottom: 30px;">
       Name: <strong>Xiangru Huang</strong>
     </div>
+
     <!-- Overview -->
     <h2>Overview</h2>
     <p>
       This code implements a multi-scale image alignment algorithm to reconstruct a color image
-      from three separate grayscale channels (red, green, blue) that may be misaligned due to capture artifacts.
+      from three separate grayscale channels (blue, green, red) that may be misaligned due to capture artifacts.
       The algorithm uses a pyramid-based approach to efficiently align the green and red channels
       to the blue channel reference.
     </p>
 
     <!-- Algorithms -->
-    <h2>Algorithms</h2>
-<h3>1. Image Preparation</h3>
+    <h2>Algorithms:</h2>
+    <h3>1. Image Preparation</h3>
     <p>
       - The input image is split into three equal vertical segments representing the blue, green, and red channels.<br>
       - The blue channel is selected as the reference for alignment.
@@ -77,9 +133,23 @@
 
     <h3>2. Alignment Metric</h3>
     <p>
-      - Uses Normalized Cross-Correlation (NCC) of Sobel-filtered images as the similarity measure.<br>
-      - Incorporates cropping to avoid border artifacts during comparison.
+      - Uses Normalized Cross-Correlation (NCC) of two images as the similarity measure:<br>
     </p>
+    <p>
+      $$ \text{NCC}(I_1, I_2) = \frac{I_1}{\|I_1\|} \cdot \frac{I_2}{\|I_2\|} $$
+    </p>
+    <div class="image-item">
+      <img src="project1_images/unit_vectors_theta.gif">
+      <div class="caption">illustration</div>
+    </div>
+    <p>
+      The larger NCC is (i.e. the closer to 1), the more aligned two images are:
+    </p>
+    As illustrated in the gif, the dot product of two unit vectors approaches 1 if and only if they point in nearly the same direction.
+In our context, the two normalized images that need to be aligned play the role of these unit vectors.
+They are considered to be “in the same direction” when the increasing or decreasing trends of their values are consistent.
+Because the absolute luminance (brightness) of each channel can vary greatly, we are not interested in the actual magnitude.
+Instead, what matters is the tendency, whether both images rise or fall together.
 
     <h3>3. Image Pyramid</h3>
     <p>
@@ -93,7 +163,6 @@
       - Saves and displays the aligned color image.
     </p>
 
-
     <!-- Results -->
     <h2>Results</h2>
 
@@ -101,30 +170,30 @@
     <div class="image-grid">
       <div class="image-item">
         <img src="project1_images/out_path/out_cathedral.jpg">
-        <div class="caption">cathedral<br>G to B (dx, dy): (5, 2)<br>R to B (dx, dy): (12, 3)</div>
+        <div class="caption">cathedral<br>G to B (dx, dy): (5,2)<br>R to B (dx, dy): (12,3)</div>
       </div>
       <div class="image-item">
-        <img src="project1_images/out_path/out_monastery.jpg" alt="lowres2">
-        <div class="caption">monastery<br>G to B (dx, dy): (-3, 2)<br>R to B (dx, dy): (3, 2)</div>
+        <img src="project1_images/out_path/out_monastery.jpg">
+        <div class="caption">monastery<br>G to B (dx, dy): (-3,2)<br>R to B (dx, dy): (3,2)</div>
       </div>
       <div class="image-item">
-        <img src="project1_images/out_path/out_tobolsk.jpg" alt="lowres3">
-        <div class="caption">tobolsk<br>G to B (dx, dy): (3, 3)<br>R to B (dx, dy): (6, 3)</div>
+        <img src="project1_images/out_path/out_tobolsk.jpg">
+        <div class="caption">tobolsk<br>G to B (dx, dy): (3,3)<br>R to B (dx, dy): (6,3)</div>
       </div>
     </div>
 
     <h3>High Resolution</h3>
-    <!-- 第一行：2 张 -->
     <div class="image-grid">
       <div class="image-item">
-        <img src="project1_images/out_path/out_emir.jpg" >
-        <div class="caption">emir<br>G to B (dx, dy): (49, 24)<br>R to B (dx, dy): (107, 40)</div>
+        <img src="project1_images/out_path/out_emir.jpg">
+        <div class="caption">emir<br>G to B (dx, dy): (49,24)<br>R to B (dx, dy): (107,40)</div>
       </div>
       <div class="image-item">
         <img src="project1_images/out_path/out_church.jpg">
-        <div class="caption">church<br>G to B (dx, dy): (25, 4)<br>R to B (dx, dy): (58, -4)</div>
+        <div class="caption">church<br>G to B (dx, dy): (25,4)<br>R to B (dx, dy): (58,-4)</div>
       </div>
     </div>
+
     <!-- 第二行：3 张 -->
     <div class="image-grid">
       <div class="image-item">
@@ -155,7 +224,8 @@
         <div class="caption">melons<br>G to B (dx, dy): (80, 10)<br>R to B (dx, dy): (177, 13)</div>
       </div>
     </div>
-    <!-- 第四行：3 张 -->
+
+      <!-- 第四行：3 张 -->
     <div class="image-grid">
       <div class="image-item">
         <img src="project1_images/out_path/out_self_portrait.jpg">
@@ -190,23 +260,20 @@
     <!-- Problems -->
     <h2>Problems Encountered</h2>
     <p>
-      Initially, the alignment results (even the low-resolution ones) were poor because the algorithm did not crop the images before comparison.
-      Without cropping, the black borders introduced by shifting dominated the similarity metric,
-      leading to incorrect alignment. By cropping out the borders (simply set 10%), the metric focuses on the actual image content,
-      resulting in much more accurate alignment.
+      Initially, the alignment results were poor because the algorithm did not crop images before comparison.
+      The black borders introduced by shifting dominated the similarity metric, leading to incorrect alignment.
+      After cropping (10%), accuracy improved significantly.
     </p>
-
     <div class="image-grid">
       <div class="image-item">
-        <img src="project1_images/out_path/out_cathedral_without_crop.jpg" alt="without crop">
+        <img src="project1_images/out_path/out_cathedral_without_crop.jpg">
         <div class="caption">cathedral without crop</div>
       </div>
       <div class="image-item">
-        <img src="project1_images/out_path/out_cathedral.jpg" alt="with crop">
+        <img src="project1_images/out_path/out_cathedral.jpg">
         <div class="caption">cathedral with crop</div>
       </div>
     </div>
-
   </div>
 </body>
 </html>

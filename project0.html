@@ -6,32 +6,63 @@
   <link rel="stylesheet" href="style.css">
   <style>
     body {
+      margin: 0;
       font-family: 'Inter', sans-serif;
-      background-color: #fff;
+      background: linear-gradient(135deg, white, white); /* 背景与主页统一 */
       color: #222;
       line-height: 1.7;
+      min-height: 100vh;
     }
 
-    /* Project 总标题 */
+    /* 导航栏 */
+    nav {
+      width: 100%;
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0.8rem 0;
+    }
+    nav ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #ffeaa7;
+    }
+
+    /* 容器 */
+    .container {
+      margin: 100px auto 40px auto; /* 避开导航栏 */
+      padding: 0 20%;
+    }
+
+    /* 标题与文字 */
     h1 {
       text-align: center;
       color: darkgreen;
       margin-bottom: 5px;
     }
-
-    /* Part 大标题 */
     h2 {
       color: cadetblue;
       margin-top: 40px;
     }
-
-    /* Description & Explanation 小标题 */
     h3 {
       color: cadetblue;
       margin-top: 15px;
     }
-
-    /* 正文文字保持黑色 */
     p {
       color: #000;
       margin: 8px 0;
@@ -41,28 +72,23 @@
     figure {
       text-align: center;
     }
-
     img {
       display: inline-block;
-    }
-
-    /* 容器 */
-    .container {
-      margin: 0 auto;
-      padding: 60px 20%;
     }
   </style>
 </head>
 <body>
 
+  <!-- 导航栏 -->
   <nav>
-    <a href="index.html">Home</a>
-    <a href="project0.html">Project 0</a>
-    <a href="project1.html">Project 1</a>
-    <a href="project2.html">Project 2</a>
-    <a href="project3.html">Project 3</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="project0.html">Project 0</a></li>
+      <li><a href="project1.html">Project 1</a></li>
+    </ul>
   </nav>
 
+  <!-- 页面内容 -->
   <div class="container">
     <!-- Title -->
     <h1>📸 Project 0: Becoming Friends with Your Camera</h1>
@@ -73,40 +99,28 @@
     <!-- ================= Part 1 ================= -->
     <h2>🤳 Part 1: Selfie: The Wrong Way vs. The Right Way</h2>
     <h3>📝 Description & Explanation:</h3>
-
     <p>
       📷 As shown below, the left image was taken from a distance of around 200 cm using a focal length of 84mm,
       while the right image was captured from a much closer distance of around 20 cm using a focal length of 14mm.
       The framing was adjusted so that the size of the face appears roughly the same in both images.
     </p>
-
     <p>
       🔍 Although the face size remains similar in both images, there are two significant visual differences caused by the change in focal length and camera distance:
     </p>
-
     <p>1. <strong>Facial distortion:</strong></p>
     <p>
-      ✅ In the left image (84mm, 200cm), the facial proportions look natural and undistorted because shooting
-      from a farther distance with a longer focal length reduces perspective exaggeration.<br>
-      ❌ In the right image (14mm, 20cm), the face appears distorted: the nose and central features look larger, while the ears and edges of the face appear stretched.
+      ✅ In the left image (84mm, 200cm), the facial proportions look natural and undistorted.<br>
+      ❌ In the right image (14mm, 20cm), the face appears distorted: the nose looks larger, while the ears appear stretched.
     </p>
-
     <p>2. <strong>Background appearance:</strong></p>
     <p>
-      ⛱️ In the left image (84mm, zoomed in), the background elements (e.g., umbrellas, chairs, walls) appear closer together.
-      In the right image (14mm, no zoom), the background appears much wider and more spaced out due to the wide field of view.
+      ⛱️ In the left image (84mm, zoomed in), the background elements appear closer together.
+      In the right image (14mm, no zoom), the background appears much wider and more spaced out.
     </p>
-
     <p><strong>Explanation:</strong></p>
     <p>
-      When shooting from a close distance with a lens with shorter focal length (14 mm, 20 cm), the relative depth differences between facial features (e.g., nose, eyes, ears) become significant,
-      causing the nose to appear larger and the edges of the face to stretch.
-      In contrast, shooting from farther away with a lens with longer focal length (84 mm, 200 cm) reduces these relative depth differences,
-      making the facial proportions look more natural.
-      Additionally, when keeping the face the same size in the frame,
-      using a longer focal length from farther away compresses the background,
-      making it appear closer and fuller, while a lens with longer focal length from a closer distance
-      creates a wider field of view, making the background look more distant and spacious.
+      Shooting from a close distance with a shorter focal length exaggerates perspective, causing distortion.
+      Shooting from farther away with a longer focal length compresses perspective, making proportions natural and background closer.
     </p>
 
     <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
@@ -123,29 +137,12 @@
     <!-- ================= Part 2 ================= -->
     <h2>🏛️ Part 2: Architectural Perspective Compression</h2>
     <h3>📝 Description & Explanation:</h3>
-
     <p>
-      🏞️ As shown below, I first zoomed in and took the left image using a focal length of 51mm from a farther distance.
-      Then, I walked closer along the hallway and captured the right image without zooming, using a focal length of 26mm.
+      🏞️ The left image was taken using a focal length of 51mm from a farther distance.
+      The right image was taken closer, with a focal length of 26mm.
     </p>
-
-    <p>
-      📏 The red marks highlight the width of the corridor at the far end, which we compare between the two images to analyze perspective effects.
-      Although the apparent width of the corridor at the far end is roughly the same in both images,
-      there are two significant visual differences caused by the change in focal length and camera distance:
-    </p>
-
-    <p>1. <strong>Size of the distant trees:</strong></p>
-    <p>
-      🌳 In the left image (51mm, zoomed in), the trees in the background appear bigger compared to the right image (26mm, no zoom).
-      This happens because using a longer focal length from a farther distance compresses depth, reducing the relative size difference between near and far objects.
-    </p>
-
-    <p>2. <strong>Number of visible columns:</strong></p>
-    <p>
-      🏛️ In the left image (51mm, zoomed in), more columns on both sides of the hallway are visible,
-      while in the right image (26mm, no zoom), fewer columns are shown.
-    </p>
+    <p>1. <strong>Size of the distant trees:</strong> 🌳 Longer focal length compresses depth → trees look larger.</p>
+    <p>2. <strong>Number of visible columns:</strong> 🏛️ Longer focal length shows more columns compared to wide-angle.</p>
 
     <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
       <figure>
@@ -161,7 +158,6 @@
     <!-- ================= Part 3 ================= -->
     <h2>🎥 Part 3: The Dolly Zoom</h2>
     <h3>📝 Description & Explanation:</h3>
-
     <p>
       While the football player keeps roughly the same size in the picture,
       the background seems to become "larger" when I moved the camera back while zooming in.
@@ -176,7 +172,6 @@
     <p>
       I used a template of html from CS 184, and used chatGPT to help me add emojis 😉
     </p>
-
   </div>
 </body>
 </html>
