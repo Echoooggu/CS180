@@ -2,24 +2,480 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Project 2</title>
+  <title>Project 1</title>
   <link rel="stylesheet" href="style.css">
+<!--  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>-->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: linear-gradient(135deg, white, white); /* 和主页统一背景 */
+      min-height: 100vh;
+    }
+    .image-item {
+  text-align: center;      /* 水平居中 */
+  margin: 20px auto;       /* 给整体加点上下间距 */
+}
+
+.image-item img {
+  max-width: 100%;         /* 保证图片不会超出容器宽度 */
+  height: auto;            /* 等比缩放 */
+  display: inline-block;
+}
+
+.caption {
+  display: block;          /* 确保是块级元素 */
+  text-align: center;      /* 水平居中 */
+  font-size: 14px;
+  color: #333;
+  margin-top: 8px;         /* 图片和文字之间的间距 */
+}
+
+
+
+    /* 导航栏 */
+    nav {
+      width: 100%;
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0.8rem 0;
+    }
+    nav ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #ffeaa7;
+    }
+
+    /* 内容主体 */
+    .container {
+      margin: 100px auto 40px auto; /* 避开导航栏 */
+      padding: 0 15%;
+    }
+    h1 { text-align: center; color: darkgreen; }
+    h2 { color: cadetblue; margin-top: 40px; }
+    h3 { color: teal; margin-top: 20px; }
+    p { color: #000; margin: 8px 0; }
+
+    /* 图片展示区域 */
+    .image-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .image-item {
+      text-align: center;
+      max-width: 250px;
+    }
+    .image-item img {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .caption {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.4;
+    }
+  </style>
 </head>
 <body>
 
+  <!-- 导航栏 -->
   <nav>
-    <a href="index.html">Home</a>
-    <a href="project0.html">Project 0</a>
-    <a href="project1.html">Project 1</a>
-    <a href="project2.html">Project 2</a>
-    <a href="project3.html">Project 3</a>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="project0.html">Project 0</a></li>
+      <li><a href="project1.html">Project 1</a></li>
+      <li><a href="project2.html">Project 2</a></li>
+      <li><a href="project3.html">Project 3</a></li>
+      <li><a href="project4.html">Project 4</a></li>
+      <li><a href="project5.html">Project 5</a></li>
+    </ul>
   </nav>
 
+  <!-- 页面主体内容 -->
   <div class="container">
-    <h1>Project 2</h1>
-    <p>这是 Project 2 的介绍文字，你可以写一些内容。</p>
-    <img src="images/example.jpg" alt="Project 2 image">
-  </div>
+    <h1>🎨 Project 2: Fun with Filters and Frequencies!</h1>
+    <div style="text-align: center; margin-bottom: 30px;">
+      Name: <strong>Xiangru Huang</strong>
+    </div>
 
+
+    <h2>Part1: Fun with Filters</h2>
+    <h3>Part1.1 Convolutions from Scratch!</h3>
+    <h4>Implementations of convolution:</h4>
+    <div>
+      <img src="project2_images/grid_code_snippets.png">
+    </div>
+    <p>
+     I prefer dogs to selfies :) Here's the dog's picture convolved with different methods:
+    <div>
+      <img src="project2_images/grid_part1_1.png">
+    </div>
+    <p>
+      While the results using three algorithms of convolution look the same,
+      they are different in runtime and potentially in boundary handling.
+    </p>
+    <p>
+      <b>1. Runtime</b>
+    </p>
+    <p>
+       - four loops: 4.387431083014235 sec<br>
+       - two loops: 0.5615172919933684 sec;
+      faster than four loops: it leverages np.sum on each region instead of looping over kernel elements.<br>
+       - built-in convolve2d(): 0.02003837501979433 sec; even faster: leverages the Fast Fourier Transform (FFT) for large arrays.
+    </p>
+    <p>
+      <b>2. Boundary Handling</b>
+    </p>
+    <p>
+      Four loops and two loops both use np.pad, padding the edges with black,
+      with the size to be half the size of the convolution kernel.
+      The built-in scipy.signal.convolve2d(..., mode="same", boundary="fill", fillvalue=0) is the same with these specific parameters.
+      However, the built-in function also supports other boundary options ("symm", "wrap", etc.),
+      while the NumPy-only implementations do not handle is modified manually.
+    </p>
+    <p>
+      Here are also results of convolved images using Dx and Dy:
+    </p>
+    <div>
+      <img src="project2_images/grid_dog_Ix_Iy.png">
+    </div>
+
+
+    <h3>Part1.2 Finite Difference Operator</h3>
+    <p>
+      <b>
+        Partial derivatives in x and y:
+      </b>
+    </p>
+    <div>
+      <img src="project2_images/grid_cameraman_finite_difference_Ix_Iy.png">
+    </div>
+    <p>
+      <b>
+        (Binarized) gradient magnitude images:
+      </b>
+    </p>
+      <p>
+          The function binarizes the gradient magnitude image by choosing a threshold at the 92nd percentile of pixel values,
+          meaning only the strongest ~8% of gradients are retained.
+          Pixels above this threshold are set to 1 (strong edges) and the rest to 0.
+      </p>
+
+    <div>
+      <img src="project2_images/grid_cameraman_finite_difference_gradient_magnitude.png">
+    </div>
+
+
+    <h3>Part1.3 Derivative of Gaussian Filter</h3>
+      <h4>Gaussian function:</h4>
+      <p>
+$$
+G(x,y) \;=\; \frac{1}{2 \pi \sigma^{2}} \exp \!\left( -\frac{x^{2}+y^{2}}{2\sigma^{2}} \right)
+$$
+</p>
+      <h4>Gaussian kernel after approximation for this part: (9 ✖️ 9, sigma = 1.5)</h4>
+<p>
+$$
+G \;=\; \tfrac{1}{1024}
+\begin{bmatrix}
+0 & 0 & 1 & 2 & 2 & 2 & 1 & 0 & 0 \\
+0 & 1 & 4 & 8 & 10 & 8 & 4 & 1 & 0 \\
+1 & 4 & 12 & 24 & 30 & 24 & 12 & 4 & 1 \\
+2 & 8 & 24 & 47 & 58 & 47 & 24 & 8 & 2 \\
+2 & 10 & 30 & 58 & 72 & 58 & 30 & 10 & 2 \\
+2 & 8 & 24 & 47 & 58 & 47 & 24 & 8 & 2 \\
+1 & 4 & 12 & 24 & 30 & 24 & 12 & 4 & 1 \\
+0 & 1 & 4 & 8 & 10 & 8 & 4 & 1 & 0 \\
+0 & 0 & 1 & 2 & 2 & 2 & 1 & 0 & 0
+\end{bmatrix}
+$$
+</p>
+
+
+    <h4>Compare below:</h4>
+    <div>
+      <img src="project2_images/grid_cameraman_compare.png">
+    </div>
+    <p>
+      <b>
+        1. Finite difference vs. Gaussian blur: (1st row vs. 2nd/3rd row)
+      </b>
+    </p>
+    <p>
+      Apparently, adopting gaussian blur reduces noise in comparison to using finite difference.
+      This is because a Gaussian blur acts as a low-pass filter, smoothing out small, rapid intensity fluctuations (i.e. high-frequency noise).
+      After blurring, the image has less noise, so it will highlight true edges rather than random pixel-level variations.
+    </p>
+    <p>
+      <b>
+        2. Differentiate after smoothing vs. Convolve with derivative of Gaussian (DoG): (2nd row vs. 3rd row)
+      </b>
+    </p>
+    <p>
+      As is shown in the second and the third columns, these two algorithms generate almost the same result.
+    </p>
+    <p>
+      a. The 2nd row is induced by <b>differentiating after smoothing:</b>
+    </p>
+    <p>
+      (i) Gaussian blur using a Gaussian kernel. -> blurred cameraman<br>
+      (ii) Take partial derivatives using Dx and Dy.
+    </p>
+    <p>
+      b. The 3rd row is induced by <b>convolving with derivative of Gaussian (DoG):</b>
+    </p>
+    <p>
+      (i) First take partial derivatives of the Gaussian kernel to get DoG.
+    </p>
+    <div>
+      <img src="project2_images/grid_cameraman_DoG.png">
+    </div>
+    <p>
+      (ii) Apply gaussian blur using DoG instead of the Gaussian kernel
+    </p>
+    <p>
+      According to the Derivative Theorem of Convolution (see below), the two algorithms should be the same.
+    </p>
+    <div>
+      <img src="project2_images/theorem.png">
+    </div>
+
+
+
+
+    <h2>Part2 Fun with Frequencies!</h2>
+    <h3>Part2.1 Image "Sharpening"</h3>
+    <h4>1. Explain how the unsharp mask filter works in relation to blur filters and high frequencies:</h4>
+    <p>
+      <b>
+        a. Blur the image
+      </b>
+    </p>
+    <p>
+      Apply Gaussian blur to the input image, generating a smoothed version of the original,
+      which contains low-frequency signals of the input.
+    </p>
+        <p>
+      <b>
+        b. Subtract to get the high frequency signals
+      </b>
+    </p>
+    <p>
+  \[
+  \text{high_freq} = \text{original} - \text{blurred} \; (\text{i.e. low_freq})
+  \]
+</p>
+    <p>
+      Use the original image to subtract the smoothed image, leaving high frequency signals.
+    </p>
+    </p>
+        <p>
+      <b>
+        c. Sharpen the image
+      </b>
+    </p>
+<p>
+  \[
+  \text{sharpened} = \text{original} + \alpha \cdot \text{high_freq}
+  \]
+</p>
+      <h4>2. How varying the sharpening amount changes the result:</h4>
+    <p>
+      Choose an arbitrary alpha. Here I used alpha = 1.0 for taj and then alpha = 5.0<br>
+      As is shown in the images below, the larger the alpha, the clearer the edges look like.
+      The edges may even look too crisp and you may start to see halos (bright/dark outlines around edges).
+      Colored noise in flat areas also gets amplified.
+    </p>
+    <div>
+      <img src="project2_images/grid_taj.png">
+      <div class="caption">taj, with alpha = 1.0</div>
+    </div>
+    <div>
+      <img src="project2_images/grid_taj_5.png">
+      <div class="caption">taj, with alpha = 5.0</div>
+    </div>
+    <div>
+      <img src="project2_images/grid_corgi.png">
+      <div class="caption">corgi, with alpha = 1.0</div>
+    </div>
+    <div>
+      <img src="project2_images/grid_golden_retriever.png">
+      <div class="caption">golden retriever, with alpha = 1.0</div>
+    </div>
+
+
+
+    <h3>Part2.2 Hybrid Images</h3>
+    <h4>Results:</h4>
+    <div>
+      <img src="project2_images/grid_derek_cat.png">
+      <div class="caption">hybrid: derek + cat</div>
+    </div>
+    <div>
+      <img src="project2_images/grid_hybrid_cat_tiger.png">
+      <div class="caption">hybrid: cat + tiger</div>
+    </div>
+
+    <!-- explanations with 5 images-->
+    <h4>Another example and explanations:</h4>
+    <p>
+      Input 1 (dog) is to be low-pass filtered, and Input 2 (cat) is to be high-pass filtered.
+    </p>
+    <p>
+      The FFT of the original images look similar, with some light gathering in the frequency domain
+      while the axes to be significantly lighter.
+    </p>
+    <p>
+      Then, the low-pass filtered image mainly preserves the lighting concentrated in the center and on the axes,
+      while the high-pass filtered image maintains light more broadly across the image.
+      This aligns with intuition: a low-pass filter retains low-frequency information (broad, smooth structures)
+      and removes fine details,
+      while a high-pass filter does the reverse, highlighting edges and textures.
+      </p>
+    <p>
+      In short, the low-pass filter captures the “overall shape,” the high-pass filter captures the “details,”
+      and their combination in the FFT naturally brings both together.
+    </p>
+      <div>
+        <img src="project2_images/grid_blended_dog_FFT.png">
+        <div class="caption">dog: original and with low frequency</div>
+      </div>
+    <div>
+        <img src="project2_images/grid_blended_cat_FFT.png">
+        <div class="caption">cat: original and with high frequency</div>
+      </div>
+
+    <div>
+      <img src="project2_images/grid_hybrid_frq.png">
+      <div class="caption">hybrid: dog + cat</div>
+    </div>
+
+
+
+    <h3>Part2.3 & 2.4 Multi-resolution Blending</h3>
+    <h4>Gaussian ad Laplacian stacks for the Oraple: (with Gaussian and Laplacian complete)</h4>
+  <p>
+    <b>Gaussian stacks:</b>
+  </p>
+    <div>
+      <img src="project2_images/grid_g_stacks_apple.png">
+      <div class="caption">apple</div>
+    </div>
+    <div>
+      <img src="project2_images/grid_g_stacks_orange.png">
+      <div class="caption">orange</div>
+    </div>
+
+  <p>
+     <b>Laplacian stacks:</b>
+  </p>
+    <div>
+      <img src="project2_images/grid_l_stacks_apple.png">
+      <div class="caption">apple</div>
+    </div>
+    <div>
+      <img src="project2_images/grid_l_stacks_orange.png">
+      <div class="caption">orange</div>
+    </div>
+
+  <h4>Replicated result of the paper: (with Gaussian and Laplacian masked)</h4>
+    <div>
+      <img src="project2_images/oraple_grid.png">
+      <div class="caption">oraple</div>
+    </div>
+
+  <h4>Two additional blended images:</h4>
+    <div>
+      <img src="project2_images/grid_chocotcha.png">
+      <div class="caption">chocolate + matcha = chocotcha</div>
+    </div>
+    <div>
+      <img src="project2_images/grid_kaggle.png">
+      <div class="caption">cat + eagle = kaggle</div>
+    </div>
+
+    <h4>Algorithm Explanations:</h4>
+    <p>
+      <b>1. Build the Gaussian stacks:</b>
+    </p>
+    <p>
+       - Choose K levels (here I chose K = 4)<br>
+       - Take the original image as level 1<br>
+       - Apply Gaussian kernel K-1 times and take the one after i-th time to be level i+1<br>
+       - Do the same for two input images and the mask respectively
+    </p>
+    <p>
+      <b>2. Build the Laplacian stacks:</b>
+    </p>
+    <p>
+       - Take the difference of consecutive Gaussian blurred images
+          </p>
+        <p>
+$$
+L_k(I) = G_k(I) - G_{k+1}(I),
+$$
+</p>
+    <p>
+      - Take the K-th image in the Gaussian stack to be also the K-th one in the Laplacian stack
+    </p>
+      <p>
+$$
+L_K(I) = G_K(I)
+$$
+</p>
+    <p>
+      - Do the same for two input images respectively
+    </p>
+
+    <p>
+      <b>3. Blend per level with the blurred mask:</b>
+    </p>
+    <p>
+  \[
+  l_k = l_k^A \cdot m_k + l_i^B \cdot (1 - m_k)
+  \]
+</p>
+    <p>
+      L for Laplacian, k for the k-th level
+    </p>
+    <p>
+      <b>4. Add up the blended images</b>
+    </p>
+    <p>
+       - Add up all the blended images per level and get the final blended one.
+    </p>
+    <p>
+$$
+I_{\text{blend}} = \sum_{k=0}^{K} \ell_k
+$$
+</p>
+
+    </div>
 </body>
 </html>
