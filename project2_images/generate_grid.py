@@ -4,17 +4,18 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-im1 = cv2.imread("grid_cat_original.png")[..., ::-1]
-im2 = cv2.imread("grid_cat_high_frq.png")[..., ::-1]
+im1 = cv2.imread("gaussian_kernel.jpg")[..., ::-1]
+im2 = cv2.imread("gs_kernel_matrix.jpg")[..., ::-1]
+
 
 
 images = [im1, im2]
-titles = ["original cat", "cat with high frq"]
+titles = [""," "]
 
 # 归一化到 [0,1]（float），保证显示不会过曝
 images = [img.astype(np.float32) / 255.0 for img in images]
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 3))
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
 for i in range(2):
     axes[i].imshow(images[i])  # 不需要 cmap
@@ -22,7 +23,7 @@ for i in range(2):
     axes[i].set_title(titles[i], fontsize=12, pad=5)
 
 plt.tight_layout()
-plt.savefig("grid_blended_cat_FFT.png", dpi=300)
+plt.savefig("gs_kernel.jpg", dpi=300)
 plt.show()
 
 
