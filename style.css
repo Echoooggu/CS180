@@ -29,3 +29,15 @@ img {
   max-width: 100%;
   border-radius: 8px;
 }
+
+<style>
+@media print {
+  nav, .navbar, .top-nav, header {
+    display: none !important;
+  }
+  body {
+    margin-top: 0 !important;
+  }
+}
+</style>
+

@@ -4,18 +4,18 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-im1 = cv2.imread("gaussian_kernel.jpg")[..., ::-1]
-im2 = cv2.imread("gs_kernel_matrix.jpg")[..., ::-1]
+im1 = cv2.imread("image1_1.jpg")[..., ::-1]
+im2 = cv2.imread("image1_2.jpg")[..., ::-1]
 
 
 
 images = [im1, im2]
-titles = [""," "]
+titles = ["reference image (looking straight forward)","image to warp (turning right)"]
 
 # 归一化到 [0,1]（float），保证显示不会过曝
 images = [img.astype(np.float32) / 255.0 for img in images]
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+fig, axes = plt.subplots(1, 2, figsize=(12, 6))
 
 for i in range(2):
     axes[i].imshow(images[i])  # 不需要 cmap
@@ -23,8 +23,43 @@ for i in range(2):
     axes[i].set_title(titles[i], fontsize=12, pad=5)
 
 plt.tight_layout()
-plt.savefig("gs_kernel.jpg", dpi=300)
+plt.savefig("image_1_original.jpg", dpi=300)
 plt.show()
+
+#
+# # Read six images (replace with your filenames)
+# im1 = cv2.imread("warped_nn_3.jpg")[..., ::-1]
+# im2 = cv2.imread("warped_nn_with_rectangle_3.png")[..., ::-1]
+# im3 = cv2.imread("zoom_nn_3.jpg")[..., ::-1]
+# im4 = cv2.imread("warped_bil_3.jpg")[..., ::-1]
+# im5 = cv2.imread("warped_bil_with_rectangle_3.png")[..., ::-1]
+# im6 = cv2.imread("zoom_bil_3.jpg")[..., ::-1]
+#
+# images = [im1, im2, im3, im4, im5, im6]
+# titles = [
+#     "warped with nearest neighbor",
+#     "",
+#     "",
+#     "warped with bilinear",
+#     "",
+#     ""
+# ]
+#
+# # Normalize to [0, 1] float for proper display
+# images = [img.astype(np.float32) / 255.0 for img in images]
+#
+# # Create a 2×3 grid
+# fig, axes = plt.subplots(2, 3, figsize=(12, 8))
+#
+# for i, ax in enumerate(axes.flat):
+#     ax.imshow(images[i])
+#     ax.axis("off")
+#     ax.set_title(titles[i], fontsize=12, pad=5)
+#
+# plt.tight_layout()
+# plt.savefig("comp_nn_bil_3.jpg", dpi=300)
+# plt.show()
+
 
 
 # # four color images:

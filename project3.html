@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Project 1</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ✅ MathJax setup (TeX + MathML + CHTML) -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: linear-gradient(135deg, white, white); /* 和主页统一背景 */
+      min-height: 100vh;
+    }
+    .image-item {
+  text-align: center;      /* 水平居中 */
+  margin: 20px auto;       /* 给整体加点上下间距 */
+}
+
+.image-item img {
+  max-width: 100%;         /* 保证图片不会超出容器宽度 */
+  height: auto;            /* 等比缩放 */
+  display: inline-block;
+}
+
+.caption {
+  display: block;          /* 确保是块级元素 */
+  text-align: center;      /* 水平居中 */
+  font-size: 14px;
+  color: #333;
+  margin-top: 8px;         /* 图片和文字之间的间距 */
+}
+
+
+
+    /* 导航栏 */
+    nav {
+      width: 100%;
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0.8rem 0;
+    }
+    nav ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+    nav ul li a:hover {
+      color: #ffeaa7;
+    }
+
+    /* 内容主体 */
+    .container {
+      margin: 100px auto 40px auto; /* 避开导航栏 */
+      padding: 0 15%;
+    }
+    h1 { text-align: center; color: darkgreen; }
+    h2 { color: cadetblue; margin-top: 40px; }
+    h3 { color: teal; margin-top: 20px; }
+    p { color: #000; margin: 8px 0; }
+
+    /* 图片展示区域 */
+    .image-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .image-item {
+      text-align: center;
+      max-width: 250px;
+    }
+    .image-item img {
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .caption {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.4;
+    }
+  </style>
+
+
+
+
+</head>
+<body>
+
+  <!-- 导航栏 -->
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="project0.html">Project 0</a></li>
+      <li><a href="project1.html">Project 1</a></li>
+      <li><a href="project2.html">Project 2</a></li>
+      <li><a href="project3.html">Project 3</a></li>
+      <li><a href="project4.html">Project 4</a></li>
+      <li><a href="project5.html">Project 5</a></li>
+    </ul>
+  </nav>
+
+  <!-- 页面主体内容 -->
+  <div class="container">
+    <h1>🎨 Project 3: [Auto]Stitching Photo Mosaics</h1>
+    <div style="text-align: center; margin-bottom: 30px;">
+      Name: <strong>Xiangru Huang</strong>
+    </div>
+
+
+    <h2>PartA: Image Warping and Mosaicing</h2>
+    <h3>A.1: Shoot the Pictures</h3>
+    <p>
+        Here are three sets of images with projective transformations between them.
+        I fixed the center of projection (where the camera lens of my iPhone is located)
+        and rotated and camera to guarantee projective transformations.<br>
+        Though it may not be exactly the same center of projection since my hands might have moved a little bit,
+        it can still be approximately considered as projective transformations.
+    </p>
+    <div>
+      <img src="project3_images/image_1_original.jpg">
+    </div>
+
+    <div>
+      <img src="project3_images/image_2_original.jpg">
+    </div>
+
+      <div>
+      <img src="project3_images/image_3_original.jpg">
+    </div>
+
+
+
+    <h3>A.2: Recover Homographies</h3>
+<h4>Algorithms:</h4>
+<p>
+  We use a homography matrix \(H\) to represent the projective transformation from image 1 to image 2.
+</p>
+
+<p>
+$$
+H =
+\begin{bmatrix}
+h_{11} & h_{12} & h_{13} \\
+h_{21} & h_{22} & h_{23} \\
+h_{31} & h_{32} & h_{33}
+\end{bmatrix}
+$$
+</p>
+      <p>
+          \(h_{11}, h_{12}, h_{21}, h_{22}\): Affine Transformation -
+          controls rotation, scaling, and shearing.<br>
+          \(h_{13}, h_{23}\): Translation<br>
+          \(h_{31}, h_{32}\): Perspective/Projective -
+          Introduces perspective distortion; makes parallel lines converge.<br>
+          \(h_{33}\): Normalization -
+          Usually set to 1 for scale normalization; no geometric meaning.
+      </p>
+
+<p>
+For an arbitrary point \((x, y)\) in image 1, represented as \(p\) in homogeneous coordinate,
+and an arbitrary point \((x', y')\) in image 2, represented as \(p'\),
+\(H\) maps \((x, y)\) to \((x', y')\)
+</p>
+
+<p>
+$$
+p =
+\begin{bmatrix} x \\ y \\ 1 \end{bmatrix}, \quad
+p' =
+\begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix}, \quad
+p' \sim Hp =
+\begin{bmatrix}
+h_{11}x + h_{12}y + h_{13} \\
+h_{21}x + h_{22}y + h_{23} \\
+h_{31}x + h_{32}y + h_{33}
+\end{bmatrix}
+$$
+</p>
+
+<p>
+Comparing \(p'\) with \(Hp\), we get:
+</p>
+
+<p>
+$$
+x' = \frac{h_{11}x + h_{12}y + h_{13}}{h_{31}x + h_{32}y + h_{33}}, \quad
+y' = \frac{h_{21}x + h_{22}y + h_{23}}{h_{31}x + h_{32}y + h_{33}}
+$$
+</p>
+
+<p>
+Expanding the two expressions, we have the following linear equations:
+</p>
+
+<p>
+$$
+x'(h_{31}x + h_{32}y + h_{33}) = h_{11}x + h_{12}y + h_{13}
+$$
+</p>
+<p>
+$$
+y'(h_{31}x + h_{32}y + h_{33}) = h_{21}x + h_{22}y + h_{23}
+$$
+</p>
+
+<p>
+As is known to all, linear equations can be expressed as matrix:
+</p>
+
+<p>
+$$
+\begin{bmatrix}
+x & y & 1 & 0 & 0 & 0 & -x'x & -x'y & -x' \\
+0 & 0 & 0 & x & y & 1 & -y'x & -y'y & -y'
+\end{bmatrix}
+\begin{bmatrix}
+h_{11} \\ h_{12} \\ h_{13} \\ h_{21} \\ h_{22} \\ h_{23} \\ h_{31} \\ h_{32} \\ h_{33}
+\end{bmatrix}
+= 0
+$$
+</p>
+
+<p>
+Stacking all \(n\) correspondences produces the matrix-vector multiplication
+\(Ah = 0\),
+where \(A \in \mathbb{R}^{2n\times9}\) and \(h\) is the 9-element vector formed by expanding \(H\).
+</p>
+
+
+<p>
+    The unknown is vector \(h\). Solving \(h\) gives us the homography matrix \(H\) between each two images.
+</p>
+
+<h4>Image set 1:</h4>
+<p>Visualized correspondences:</p>
+<div>
+  <img src="project3_images/image_1_annotated.jpg">
+</div>
+
+<p>Matrix A: (6 pairs of points)</p>
+<p>
+$$
+A =
+\begin{bmatrix}
+462.15 & 410.64 & 1 & 0 & 0 & 0 & -493636.70 & -438619.40 & -1068.13 \\
+0 & 0 & 0 & 462.15 & 410.64 & 1 & -184908.46 & -164299.85 & -400.10 \\
+677.14 & 362.16 & 1 & 0 & 0 & 0 & -887407.20 & -474623.89 & -1310.52 \\
+0 & 0 & 0 & 677.14 & 362.16 & 1 & -222400.70 & -118949.55 & -328.44 \\
+672.93 & 556.08 & 1 & 0 & 0 & 0 & -883301.07 & -729922.70 & -1312.63 \\
+0 & 0 & 0 & 672.93 & 556.08 & 1 & -368525.47 & -304533.89 & -547.65 \\
+462.15 & 541.32 & 1 & 0 & 0 & 0 & -495584.90 & -580484.89 & -1072.34 \\
+0 & 0 & 0 & 462.15 & 541.32 & 1 & -250173.04 & -293030.86 & -541.32 \\
+272.45 & 64.97 & 1 & 0 & 0 & 0 & -242777.29 & -57895.07 & -891.08 \\
+0 & 0 & 0 & 272.45 & 64.97 & 1 & -25167.26 & -6001.63 & -92.37 \\
+289.32 & 724.70 & 1 & 0 & 0 & 0 & -260851.66 & -653399.23 & -901.62 \\
+0 & 0 & 0 & 289.32 & 724.70 & 1 & -205397.56 & -514493.98 & -709.94
+\end{bmatrix}
+$$
+</p>
+
+<p>Homography matrix H:</p>
+<p>
+$$
+H =
+\begin{bmatrix}
+0.43161687 & -0.03351740 & 681.98891300 \\
+-0.20781592 & 0.81457621 & 86.89844070 \\
+-0.00037661 & -0.00003420 & 1
+\end{bmatrix}
+$$
+</p>
+
+<h4>Image set 2:</h4>
+<p>Visualized correspondences:</p>
+<div>
+  <img src="project3_images/image_2_annotated.jpg">
+</div>
+
+<p>Matrix A: (6 pairs of points)</p>
+<p>
+$$
+A =
+\begin{bmatrix}
+129.13 & 876.46 & 1 & 0 & 0 & 0 & -93560.68 & -635049.47 & -724.57 \\
+0 & 0 & 0 & 129.13 & 876.46 & 1 & -112085.01 & -760784.59 & -868.02 \\
+202.90 & 941.80 & 1 & 0 & 0 & 0 & -159414.84 & -739959.75 & -785.69 \\
+0 & 0 & 0 & 202.90 & 941.80 & 1 & -189377.61 & -879038.62 & -933.36 \\
+565.43 & 762.64 & 1 & 0 & 0 & 0 & -634939.16 & -856388.05 & -1122.93 \\
+0 & 0 & 0 & 565.43 & 762.64 & 1 & -446711.48 & -602511.86 & -790.04 \\
+708.76 & 714.16 & 1 & 0 & 0 & 0 & -918383.73 & -925382.30 & -1295.77 \\
+0 & 0 & 0 & 708.76 & 714.16 & 1 & -528573.61 & -532601.62 & -745.77 \\
+715.08 & 838.52 & 1 & 0 & 0 & 0 & -935620.44 & -1097124.37 & -1308.41 \\
+0 & 0 & 0 & 715.08 & 838.52 & 1 & -634272.46 & -743758.62 & -886.99 \\
+561.22 & 889.10 & 1 & 0 & 0 & 0 & -633754.15 & -1004021.38 & -1129.25 \\
+0 & 0 & 0 & 561.22 & 889.10 & 1 & -519086.72 & -822360.15 & -924.93
+\end{bmatrix}
+$$
+</p>
+
+<p>Homography matrix H:</p>
+<p>
+$$
+H =
+\begin{bmatrix}
+0.46171411 & 0.03446493 & 594.18356600 \\
+-0.24339795 & 0.82371942 & 129.06790100 \\
+-0.00037043 & -0.00000896 & 1
+\end{bmatrix}
+$$
+</p>
+
+<h4>Image set 3:</h4>
+<p>Visualized correspondences:</p>
+<div>
+  <img src="project3_images/image_3_annotated.jpg">
+</div>
+
+<p>Matrix A: (6 pairs of points)</p>
+<p>
+$$
+A =
+\begin{bmatrix}
+337.79 & 653.03 & 1 & 0 & 0 & 0 & -308832.34 & -597044.84 & -914.26 \\
+0 & 0 & 0 & 337.79 & 653.03 & 1 & -231270.54 & -447099.81 & -684.65 \\
+685.57 & 695.19 & 1 & 0 & 0 & 0 & -897011.18 & -909593.66 & -1308.41 \\
+0 & 0 & 0 & 685.57 & 695.19 & 1 & -514172.67 & -521385.03 & -749.99 \\
+679.25 & 876.46 & 1 & 0 & 0 & 0 & -887306.08 & -1144917.51 & -1306.30 \\
+0 & 0 & 0 & 679.25 & 876.46 & 1 & -652598.95 & -842067.90 & -960.77 \\
+331.47 & 752.10 & 1 & 0 & 0 & 0 & -304448.54 & -690786.06 & -918.48 \\
+0 & 0 & 0 & 331.47 & 752.10 & 1 & -259778.19 & -589430.15 & -783.71 \\
+93.29 & 817.44 & 1 & 0 & 0 & 0 & -67204.95 & -588841.89 & -720.35 \\
+0 & 0 & 0 & 93.29 & 817.44 & 1 & -76656.06 & -671651.41 & -821.65 \\
+213.44 & 891.21 & 1 & 0 & 0 & 0 & -175342.84 & -732148.41 & -821.52 \\
+0 & 0 & 0 & 213.44 & 891.21 & 1 & -193815.65 & -809282.11 & -908.07
+\end{bmatrix}
+$$
+</p>
+
+<p>Homography matrix H:</p>
+<p>
+$$
+H =
+\begin{bmatrix}
+0.48876375 & 0.12201450 & 586.32685000 \\
+-0.24004034 & 0.96798103 & 69.12434420 \\
+-0.00040256 & 0.00006588 & 1
+\end{bmatrix}
+$$
+</p>
+
+
+
+    <h3>A.3: Warp the Images</h3>
+
+      <h4>Here are three sets of warped images:</h4>
+      <div>
+        <img src="project3_images/warped_comp_1.jpg">
+      </div>
+      <div>
+        <img src="project3_images/warped_comp_2.jpg">
+      </div>
+      <div>
+        <img src="project3_images/warped_comp_3.jpg">
+      </div>
+
+      <h4>Algorithm - Inverse Warping:</h4>
+      <p>
+          The homography matrix H we calculated previously is for transforming image 1 (reference) to image 2 (to be warped).
+          Some mapped values may be floating numbers rather than integers.
+          For example, point (1, 3) in image 1 may be (5.7, 9.3) in image 2 after mapping.
+          However, since pixels are discrete, (5.7, 9.3) will be rounded to integers.
+          Thus, some pixels in image 2 may be missed, resulting in holes, which is not what we want.
+      </p>
+      <p>
+          To address the problem, we do inverse warping,
+          applying the inverse of matrix H to image 2 to correspond with image 1.
+      </p>
+      <p>
+          However, similar problems emerged.
+          This time, (1, 3) in image 2 may be mapped to (5.7, 9.3) in image 1.
+          Then which pixel value of image 1 should we pick?
+      </p>
+      <p>
+          <b>
+          Here we adopt two methods -- nearest neighbor interpolation and bilinear interpolation,
+          with their respective advantages and disadvantages.
+          </b>
+      </p>
+      <p>
+          1. Nearest neighbor interpolation
+      </p>
+      <p>
+          As the name suggests, we pick the closest neighbor in image 1.
+          Thus, (5.7, 9.3) would be (6, 9) and we take the RGB values at (6, 9) in image 1 to be that of image 2.
+      </p>
+      <p>
+          2. Bilinear interpolation
+      </p>
+      <div>
+        <img src="project3_images/bil_illustration.jpeg">
+      </div>
+      <p>
+            As is illustrated in the diagram,
+          each square cell represents four known pixel values at coordinates \((Y, X)\), \((Y, X + 1)\), \((Y + 1, X)\), \((Y + 1, X + 1)\).
+          The offsets \(w = X' - X\) and \(h = Y' - Y\) measure how far the point is from the top-left corner horizontally and vertically.
+          The closer the point is to a corner, the more that corner’s pixel value influences the result.
+          Bilinear interpolation performs two stages of linear blending:
+      </p>
+      <p>
+          first along the horizontal direction to compute intermediate values on the top and bottom edges,
+      </p>
+<p>
+\( I_{\text{top}} = (1 - w)\, I(Y, X) + w\, I(Y, X + 1) \)
+</p>
+
+<p>
+\( I_{\text{bottom}} = (1 - w)\, I(Y + 1, X) + w\, I(Y + 1, X + 1) \)
+</p>
+
+<p>
+and then along the vertical direction between those two results:
+</p>
+
+<p>
+\( I(Y', X') = (1 - h)\, I_{\text{top}} + h\, I_{\text{bottom}} \)
+</p>
+
+    <p>
+        3. Comparisons
+    </p>
+    <p>
+        Nearest neighbor interpolation assigns each new pixel the value of the closest existing pixel.
+        This method is computationally fast and preserves hard edges,
+        but it often produces blocky or jagged results because it does not account for gradual intensity changes.
+    </p>
+    <p>
+        Bilinear interpolation, on the other hand, computes the new pixel value as a weighted average of the four nearest pixels in a 2×2 neighborhood.
+        The weights depend on the pixel’s relative position between them.
+        This process smooths transitions and produces more visually continuous images.
+        However, it also blurs fine details slightly and is slower than nearest neighbor due to the additional arithmetic operations.
+    </p>
+      <p>
+          In summary, nearest neighbor is fast but rough, while bilinear is smoother but softer.
+          The choice depends on the application: use nearest neighbor for categorical or discrete data,
+          and bilinear when smooth gradients and natural-looking images are more important.
+      </p>
+
+      <h4>Their visualized comparisons between the two interpolation methods:</h4>
+      <p>
+          Set 1:
+      </p>
+      <div>
+        <img src="project3_images/comp_nn_bil_1.jpg">
+      </div>
+      <p>
+          Set 2:
+      </p>
+      <div>
+        <img src="project3_images/comp_nn_bil_2.jpg">
+      </div>
+      <p>
+          Set 3:
+      </p>
+      <div>
+        <img src="project3_images/comp_nn_bil_3.jpg">
+      </div>
+
+
+
+    <h3>A.4: Blend the Images into a Mosaic</h3>
+      <h4>Here are the results:</h4>
+      <div>
+        <img src="project3_images/showcase_1.jpg">
+      </div>
+      <div>
+        <img src="project3_images/showcase_2.jpg">
+      </div>
+      <div>
+        <img src="project3_images/showcase_3.jpg">
+      </div>
+
+
+      <h4>Step 1: Determine mosaic canvas size</h4>
+      <ul>
+          <li>Find the bounding box that encloses all warped corners.</li>
+          <li>Use this bounding box to define the final mosaic canvas size and offset coordinates so all images fit within it.</li>
+      </ul>
+
+
+      <h4>Step 2: Place two images on the canvas</h4>
+      <ul>
+          <li>Image 1 (reference) is placed at the left of the canvas, right next to the left edge of the canvas.</li>
+          <li>Image 2 (warped) is shifted according to the coordinates of its selected points after warping.</li>
+      </ul>
+
+
+      <h4>Step 3: Create alpha masks (weight maps)</h4>
+      <ul>
+        <li>Generate an alpha mask for each warped image to control blending strength.</li>
+        <li>Use a distance transform so pixels near the image center have higher weights and edges taper smoothly to zero.</li>
+      </ul>
+
+
+      <h4>Step 4: Weighted averaging and final blending</h4>
+      <ul>
+        <li>Combine all warped images using weighted averaging based on their alpha masks.</li>
+        <li>Each pixel in the mosaic is computed as a weighted sum of all overlapping images.</li>
+        <li>Normalize by total weights to maintain consistent brightness and color balance.</li>
+        <li>This blending method smooths transitions and eliminates visible edge artifacts.</li>
+      </ul>
+
+      <h4>Here are also visualized procedure for each set of images:</h4>
+      <p>
+          Set 1:
+      </p>
+            <div>
+        <img src="project3_images/mosaic_creation_process_1.png">
+      </div>
+      <p>
+          Set 2:
+      </p>
+      <div>
+        <img src="project3_images/mosaic_creation_process_2.png">
+      </div>
+      <p>
+          Set 3:
+      </p>
+      <div>
+        <img src="project3_images/mosaic_creation_process_3.png">
+      </div>
+
+
+    </div>
+</body>
+</html>
