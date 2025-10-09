@@ -49,4 +49,28 @@ img {
   }
 }
 
+@media print {
+  /* 隐藏导航栏及其占位 */
+  nav, .navbar, .top-nav, header {
+    display: none !important;
+    visibility: hidden !important;
+    position: static !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* 去掉所有上边距，防止正文被遮住 */
+  html, body, .container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    position: static !important;
+  }
+
+  /* 重新设定打印页边距 */
+  @page {
+    margin: 12mm;
+  }
+}
+
+
 
