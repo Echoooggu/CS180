@@ -72,5 +72,26 @@ img {
   }
 }
 
+@media print {
+  /* 保证页面内容不被裁掉 */
+  body {
+    transform: scale(0.9);        /* 适当缩小整个页面 */
+    transform-origin: top left;   /* 从左上角开始缩放 */
+  }
+
+  /* 允许换行和滚动的内容自动缩小 */
+  pre, code, .matrix, img {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    white-space: pre-wrap !important;
+  }
+
+  /* 页面边距稍微小一些，防止矩阵贴边被切 */
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+}
+
 
 
