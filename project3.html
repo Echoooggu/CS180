@@ -510,7 +510,7 @@ and then along the vertical direction between those two results:
           <li>Multiply each corner by its homography \(H\) to get transformed corner positions in the global space.</li>
           <li>Normalize by dividing x and y by the third coordinate.</li>
           <li>Track the global min and max of all x and y coordinates across all images.</li>
-          <li>These define the mosaic canvas size \(width = x_max - x_min, height = y_max - y_min\)</li>
+          <li>These define the mosaic canvas size \(width = x_{max} - x_{min}, height = y_{max} - y_{min}\)</li>
       </ul>
 
 
@@ -523,16 +523,16 @@ and then along the vertical direction between those two results:
 
       <h4>Step 3: Create alpha masks (weight maps)</h4>
       <ul>
-        <li>Compute a distance transform of the mask using distance_transform_edt</li>
-        <li>Normalize the distance values to [0, 1]: Pixels far from edges → alpha ≈ 1; Pixels near edges → alpha ≈ 0</li>
+        <li>Compute a distance transform of the mask using \(distance_transform_edt\)</li>
+        <li>Normalize the distance values to [0, 1]: Pixels far from edges → \(alpha\) ≈ 1; Pixels near edges → \(alpha\) ≈ 0</li>
       </ul>
 
 
       <h4>Step 4: Weighted averaging and final blending</h4>
       <ul>
-          <li>Initialize accumulators: \(mosaic_sum\) = zeros (same shape as canvas), \(weight_sum\) = zeros (2D)</li>
+          <li>Initialize accumulators: \(mosaic_{sum}\) = zeros (same shape as canvas), \(weight_{sum}\) = zeros (2D)</li>
           <li>Accumulate weighted pixel values: Expand \(alpha\) to match color channels if necessary.</li>
-          <li>Normalize the result: Divide \(mosaic_sum\) by \(weight_sum\); replace zeros in \(weight_sum\) by 1 to avoid division by zero.</li>
+          <li>Normalize the result: Divide \(mosaic_{sum}\) by \(weight_{sum}\); replace zeros in \(weight_{sum}\) by 1 to avoid division by zero.</li>
                   <li>This blending method smooths transitions and eliminates visible edge artifacts.</li>
       </ul>
 
