@@ -30,14 +30,23 @@ img {
   border-radius: 8px;
 }
 
-<style>
 @media print {
+  /* 隐藏导航栏 */
   nav, .navbar, .top-nav, header {
     display: none !important;
+    visibility: hidden !important;
   }
-  body {
+
+  /* 移除页面顶部的所有空白 */
+  body, .container {
     margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* 调整整体布局以防内容被压上去 */
+  html, body {
+    position: static !important;
   }
 }
-</style>
+
 
