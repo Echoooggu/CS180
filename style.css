@@ -143,10 +143,9 @@ img {
 }
 
 @media print {
-  mjx-container {
-    font-size: 0.7em !important;       /* 缩小 MathJax 字体 */
-    transform: scale(0.85);            /* 整体再缩小一点 */
-    transform-origin: top left;        /* 避免居中错位 */
+  .matrix-small mjx-container {
+    transform: scale(0.7);
+    transform-origin: top left;
   }
 }
 
