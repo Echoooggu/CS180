@@ -4,26 +4,27 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-im1 = cv2.imread("image1_1.jpg")[..., ::-1]
-im2 = cv2.imread("image1_2.jpg")[..., ::-1]
+im1 = cv2.imread("image_1_2_harris_corners_overlay.png")[..., ::-1]
+im2 = cv2.imread("image_1_2_harris_corners_overlay_10.png")[..., ::-1]
+im3 = cv2.imread("image_1_2_harris_corners_overlay_100.png")[..., ::-1]
 
 
 
-images = [im1, im2]
-titles = ["reference image (looking straight forward)","image to warp (turning right)"]
+images = [im1, im2, im3]
+titles = ["min_distance = 1","min_distance = 10", "min_distance = 100"]
 
 # 归一化到 [0,1]（float），保证显示不会过曝
 images = [img.astype(np.float32) / 255.0 for img in images]
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+fig, axes = plt.subplots(1, 3, figsize=(12, 6))
 
-for i in range(2):
+for i in range(3):
     axes[i].imshow(images[i])  # 不需要 cmap
     axes[i].axis("off")
     axes[i].set_title(titles[i], fontsize=12, pad=5)
 
 plt.tight_layout()
-plt.savefig("image_1_original.jpg", dpi=300)
+plt.savefig("min_distance_comp.jpg", dpi=300)
 plt.show()
 
 #

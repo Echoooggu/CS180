@@ -93,5 +93,52 @@ img {
   }
 }
 
+/* ----------------------------- */
+/* ✅ 1. 避免 MathJax 公式被截断 */
+/* ----------------------------- */
+mjx-container {
+  overflow-x: auto !important;     /* 允许长公式水平滚动 */
+  overflow-y: visible !important;  /* 防止被上下裁掉 */
+  text-align: center;
+  margin: 1.2em 0;
+}
 
+mjx-container[display="true"] {
+  display: block;
+}
+
+/* ----------------------------- */
+/* ✅ 2. 图片与图组防止被强行分页折断 */
+/* ----------------------------- */
+.image-grid,
+.image-item,
+figure,
+img {
+  page-break-inside: avoid !important; /* 打印/导出 PDF 时不分割图片 */
+  break-inside: avoid !important;
+}
+
+img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;  /* 防止被拉伸或裁剪 */
+}
+
+/* ----------------------------- */
+/* ✅ 3. 页面顶部内容不被导航栏覆盖 */
+/* ----------------------------- */
+.container {
+  margin-top: 100px;  /* 根据导航栏高度可微调，比如 100~140px */
+}
+
+/* ----------------------------- */
+/* ✅ 4. 修复打印版缩放导致的元素重叠 */
+/* ----------------------------- */
+@media print {
+  body {
+    transform: none !important;  /* 不缩放，否则 MathJax 与图片易错位 */
+  }
+}
 

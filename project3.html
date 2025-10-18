@@ -557,6 +557,276 @@ and then along the vertical direction between those two results:
       </div>
 
 
+
+
+
+          <h2>Part B: Feature Matching for Autostitching</h2>
+
+    <h3>B.1: Harris Corner Detection</h3>
+      <h4>Start with Harris Interest Point Detector (using the provided harris.py)</h4>
+    <p>
+        The algorithm computes the image gradients in both x and y directions, forms the structure tensor
+        \( M =
+        \begin{bmatrix}
+        I_x^2 & I_x I_y \\
+        I_x I_y & I_y^2
+        \end{bmatrix} \),
+        and calculates the Harris response
+        \( R = \det(M) - k(\operatorname{trace}(M))^2 \),
+        where \( k \) is a small empirical constant.
+        Local maxima of \( R \) correspond to strong corners.
+    </p>
+      <p>
+          In the original provided harris.py, min_distance between two interest points is 1.
+          However, it seems that the algorithm is capturing too many interest points.
+          I changed the min_distance to be 10 and 100 and the results are as below.
+          To better visualize, min_distance = 100 is good.
+          However, min_distance = 100 turned out to be too strict for later algorithms
+          that there would be too few interest points for matching.
+          Thus, for later implementations, I keep <b>min_distance = 10</b>.
+      </p>
+      <div>
+        <img src="project3_images/min_distance_comp.jpg">
+      </div>
+
+        <h4>Implement Adaptive Non-Maximal Suppression (ANMS)</h4>
+    <p>
+        Matching features becomes increasingly expensive as the number of detected points grows,
+        we want to limit how many interest points are used from each image.
+        However, simply choosing the strongest responses often leads to many clustered points in textured regions and few elsewhere.
+    </p>
+      <p>
+          The Harris-only detections include many closely clustered corners, especially in textured regions.
+        Many strong corners might cluster in highly textured areas (like brick walls or foliage),
+        leaving large smooth regions (like sky or ground) with no keypoints at all.
+      </p>
+      <p>
+          With ANMS, keypoints cover all parts of the image,
+        so every region contributes information to later stages like feature matching or homography estimation,
+        making the distribution of the interest points more spatially balanced.
+      </p>
+      <h4>Algorithms of ANMS:</h4>
+  <p>
+  For each corner \( x_i \) with Harris response \( f(x_i) \),
+  we compute a suppression radius \( r_i \) defined as:
+</p>
+
+<p>
+  $$
+  r_i = \min_j \| x_i - x_j \|,
+  \quad \text{s.t.} \quad f(x_i) < c_{\text{robust}} \, f(x_j),
+  \quad x_j \in \mathcal{I}
+  $$
+</p>
+
+<p>
+  where \( \mathcal{I} \) is the set of all interest point locations.
+  Intuitively, \( r_i \) measures how far we must go from \( x_i \)
+  before finding a much stronger corner.
+  A large \( r_i \) means the point \( x_i \) is both strong and isolated.
+</p>
+
+<p>
+    We use <b>\( c_{\text{robust}} = 0.9 \)</b>.
+  After computing \( r_i \) for all corners,
+  we sort them by radius in a decreasing order and keep the top \( N = 500 \) points
+  as our final set of ANMS-selected corners.
+</p>
+
+      <p><b>Detected Harris corners (before and after ANMS):</b></p>
+      <p>
+          Set1:
+      </p>
+      <div>
+        <img src="project3_images/image1_1_corners_comparison.png">
+      </div>
+      <div>
+        <img src="project3_images/image1_2_corners_comparison.png">
+      </div>
+      <p>
+          Set2:
+      </p>
+      <div>
+        <img src="project3_images/image2_1_corners_comparison.png">
+      </div>
+      <div>
+        <img src="project3_images/image2_2_corners_comparison.png">
+      </div>
+      <p>
+          Set3:
+      </p>
+      <div>
+        <img src="project3_images/image3_1_corners_comparison.png">
+      </div>
+      <div>
+        <img src="project3_images/image3_2_corners_comparison.png">
+      </div>
+
+
+    <h3>B.2: Feature Descriptor Extraction</h3>
+    <p>
+        Around each selected keypoint, extract a <b>40×40</b> window from the grayscale image,
+        using <b>a spacing of 5 pixels</b> (experimented by the original paper to be of the best cost-and-benefit).
+        This larger patch was blurred and then subsampled into a smaller <b>8×8</b> descriptor
+        to reduce sensitivity to small translations and noise.
+        Each descriptor was then normalized by subtracting its mean and dividing by its standard deviation
+        (bias / gain normalization), producing zero-mean, unit-variance feature vectors.
+    </p>
+
+
+    <p>Extracted and normalized 8×8 feature descriptors (five samples for each set):</p>
+      <p>
+          Set1:
+      </p>
+      <div>
+        <img src="project3_images/descriptors_image1_1.png">
+      </div>
+      <div>
+        <img src="project3_images/descriptors_image1_2.png">
+      </div>
+            <p>
+          Set2:
+      </p>
+      <div>
+        <img src="project3_images/descriptors_image2_1.png">
+      </div>
+      <div>
+        <img src="project3_images/descriptors_image2_2.png">
+      </div>
+            <p>
+          Set3:
+      </p>
+      <div>
+        <img src="project3_images/descriptors_image3_1.png">
+      </div>
+      <div>
+        <img src="project3_images/descriptors_image3_2.png">
+      </div>
+
+
+    <h3>B.3: Feature Matching</h3>
+<h4>Algorithm Steps:</h4>
+
+<ol>
+  <li>
+    <b>Compute pairwise distances</b><br>
+    For every descriptor in image 1, compute its squared distance to all descriptors in image 2 using
+    the Sum of Squared Differences (SSD):
+    <br>
+    \( D(i, j) = \| f_i - f'_j \|_2^2 \)
+    <br>
+    This gives a distance matrix showing how similar each pair of features is.
+  </li>
+
+  <li>
+    <b>Find the two nearest neighbors</b><br>
+    For each descriptor in image 1, find its closest and second-closest matches in image 2
+    by sorting the SSD values in ascending order.
+  </li>
+
+  <li>
+    <b>Apply Lowe’s ratio test</b><br>
+    Keep the match only if the closest match is much better than the second-closest:
+    <br>
+    \( \text{ratio} = \frac{\text{SSD}_{1}}{\text{SSD}_{2}} < \text{ratio_thresh}\)
+    <br>
+     The smaller ratio_thresh is, the stricter the selection of interest points would be.
+      We adopt <b>ratio_thresh = 0.7</b>.
+  </li>
+
+  <li>
+    <b>Collect and sort matches</b><br>
+    Store all remaining matches as pairs \((i_1, i_2)\) with their SSD scores,
+    then sort them so that the strongest (smallest SSD) come first.
+  </li>
+</ol>
+
+<p>
+In summary, the feature matching step computes distances between descriptors,
+keeps only distinct and confident matches using Lowe’s ratio test,
+and outputs reliable correspondences for RANSAC-based homography estimation.
+</p>
+
+    <p>Matched feature pairs (after Lowe ratio = 0.7 filtering, without RANSAC):</p>
+      <div>
+        <img src="project3_images/image1_1_matches_raw.png">
+      </div>
+      <div>
+        <img src="project3_images/image2_1_matches_raw.png">
+      </div>
+      <div>
+        <img src="project3_images/image3_1_matches_raw.png">
+      </div>
+
+
+    <h3>B.4: RANSAC for Robust Homography</h3>
+    <p>
+        Even after ratio filtering, a few mismatched correspondences can produce inaccurate homographies.
+        To obtain a robust estimate, implement 4-point RANSAC as described below (from a course slide).
+    </p>
+    <div>
+        <img src="project3_images/RANSAC_alg.jpg">
+    </div>
+      <p>
+          In each iteration, randomly select 4 matching pairs,
+        computed a candidate homography \( H \),
+        and counted the number of inliers satisfying
+        \( \|p'_i - H p_i\| < \text{inlier_thresh}\),
+        with \( \text{inlier_thresh} = 3 \) pixels.
+        After N iterations, the \( H \) with the largest inlier count was selected,
+        and a final least-squares fit was recomputed using all inliers.
+      </p>
+      <h4>Comparisons of before and after RANSAC:</h4>
+      <p>
+          Set1:
+      </p>
+          <div>
+        <img src="project3_images/image1_1_matches_raw.png">
+    </div>
+          <div>
+        <img src="project3_images/image1_1_matches_inliers.png">
+    </div>
+            <p>
+          Set2:
+      </p>
+          <div>
+        <img src="project3_images/image2_1_matches_raw.png">
+    </div>
+          <div>
+        <img src="project3_images/image2_1_matches_inliers.png">
+    </div>
+            <p>
+          Set3:
+      </p>
+          <div>
+        <img src="project3_images/image3_1_matches_raw.png">
+    </div>
+          <div>
+        <img src="project3_images/image3_1_matches_inliers.png">
+    </div>
+
+    <p>
+        The resulting homography was then passed into the same inverse-warping and blending pipeline
+        from Part A to automatically align and stitch the images.
+        Below are comparisons between manually stitched and automatically stitched mosaics.
+    </p>
+    <div>
+        <img src="project3_images/image1_results_comp.jpg">
+    </div>
+    <div>
+        <img src="project3_images/image2_results_comp.jpg">
+    </div>
+    <div>
+        <img src="project3_images/image3_results_comp.jpg">
+    </div>
+
+    <p>
+        It turned out that the blending region between the two input images are less blurred and more natural.
+        There are fewer artifacts in the intersecting region since the pixels align with each other better.
+    </p>
+
+
+
     </div>
 </body>
 </html>
