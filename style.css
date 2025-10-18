@@ -144,9 +144,10 @@ img {
 
 @media print {
   .matrix-small mjx-container {
-    transform: scale(0.7);
-    transform-origin: top left;
+    font-size: 0.7em !important;  /* 比例控制缩小 */
+    transform: none !important;   /* 禁止 transform 参与布局 */
   }
 }
+
 
 
