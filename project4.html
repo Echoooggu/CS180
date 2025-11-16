@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Project 4</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ✅ MathJax setup (TeX + MathML + CHTML) -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: linear-gradient(135deg, white, white);
+      min-height: 100vh;
+    }
+
+    .image-item {
+      text-align: center;
+      margin: 20px auto;
+    }
+
+    .image-item img {
+      max-width: 100%;
+      height: auto;
+      display: inline-block;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .caption {
+      display: block;
+      text-align: center;
+      font-size: 14px;
+      color: #333;
+      margin-top: 8px;
+    }
+
+    /* 导航栏 */
+    nav {
+      width: 100%;
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0.8rem 0;
+    }
+
+    nav ul {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    nav ul li a:hover {
+      color: #ffeaa7;
+    }
+
+    /* 内容主体 */
+    .container {
+      margin: 100px auto 40px auto;
+      padding: 0 15%;
+    }
+
+    h1 {
+      text-align: center;
+      color: darkgreen;
+    }
+
+    h2 {
+      color: cadetblue;
+      margin-top: 40px;
+    }
+
+    h3 {
+      color: teal;
+      margin-top: 20px;
+    }
+
+    p {
+      color: #000;
+      margin: 8px 0;
+    }
+
+    ul {
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    code {
+      background-color: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 导航栏 -->
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="project0.html">Project 0</a></li>
+      <li><a href="project1.html">Project 1</a></li>
+      <li><a href="project2.html">Project 2</a></li>
+      <li><a href="project3.html">Project 3</a></li>
+      <li><a href="project4.html">Project 4</a></li>
+      <li><a href="project5.html">Project 5</a></li>
+    </ul>
+  </nav>
+
+  <!-- 页面主体内容 -->
+  <div class="container">
+    <h1>📷 Project 4: Neural Radiance Fields (NeRF)</h1>
+    <div style="text-align: center; margin-bottom: 30px;">
+      Name: <strong>Xiangru (Echo) Huang</strong>
+    </div>
+
+    <!-- ================= Part 0 ================= -->
+    <h2>Part0 Calibrating the Camera</h2>
+
+    <!-- Part 0.1 -->
+    <h3>Part0.1 Calibrating Your Camera</h3>
+
+    <p><strong>Pipeline:</strong></p>
+    <ol>
+      <li>Loop through all the calibration images</li>
+      <li>For each image, detect the ArUco tags using OpenCV's ArUco detector</li>
+      <li>Extract the corner coordinates from the detected tags</li>
+      <li>
+        Collect all detected corners and their corresponding 3D world coordinates (e.g., my tag is 0.6m × 0.6m, so the corners should be
+        \([(0,0,0), (0.6,0,0), (0.6,0.6,0), (0,0.6,0)]\)
+      </li>
+      <li>Use <code>cv2.calibrateCamera()</code> to compute the camera intrinsics (\(K\)) and distortion coefficients</li>
+
+    </ol>
+<p>
+  \[
+  \mathbf{K} =
+  \begin{bmatrix}
+    f_x & 0   & o_x \\
+    0   & f_y & o_y \\
+    0   & 0   & 1
+  \end{bmatrix}
+  \]
+</p>
+        <p>
+  where \((f_x, f_y)\) are the focal lengths and
+  \((o_x = image\_width/2,\; o_y = image\_height/2)\) are the principal points
+</p>
+
+    <p><strong>Why use ArUco Tags:</strong></p>
+    <p>
+      OpenCV provides reliable detectors for ArUco markers, allowing us to automatically obtain the 2D pixel
+      coordinates (u,v) of each marker's corners. Since the real-world size of each tag is known, we can assign consistent 3D world coordinates to these corners. With the 2D–3D
+      correspondences from multiple images, we can run camera calibration (solvePnP + calibration routines) to estimate the camera's
+      intrinsic parameters and poses.
+    </p>
+
+    <div class="image-item">
+      <img src="project4_images/ArUco_tags.png" alt="ArUco tags">
+      <span class="caption">[ArUco_tags] Example ArUco tags used for calibration</span>
+    </div>
+
+    <p><strong>Results of the 40 images I took:</strong></p>
+    <p>
+      $$
+      Reprojection\_error = 2.173768675900111
+      $$
+    </p>
+    <p>
+      $$
+      K = \begin{bmatrix}
+      4.44686848 \times 10^3 & 0 & 2.18285199 \times 10^3 \\
+      0 & 4.44342709 \times 10^3 & 2.90192079 \times 10^3 \\
+      0 & 0 & 1
+      \end{bmatrix}
+      $$
+    </p>
+    <p>
+\begin{aligned}
+distortion\_coefficients =
+[0.05917989, -0.24526054, \\
+\quad 0.00250248, 0.00135429, 0.23005914]
+\end{aligned}
+    </p>
+
+    <!-- Part 0.2 -->
+    <h3>Part0.2 Capturing a 3D Object Scan</h3>
+
+    <p><strong>Why need to use the same camera and zoom level:</strong></p>
+    <p>
+      Camera calibration estimates the intrinsic parameters of a camera and we want an intrinsic matrix (K) shared across different views. K is
+      consisted of focal lengths (\(fx\), \(fy\)) and principal points (\(ox\), \(oy\)), which vary with the camera and zoom level, so we want these
+      parameters to be the same.
+    </p>
+
+    <p><strong>Why use 6 tags rather than a single tag as instructed:</strong></p>
+    <p>
+      ArUco tags are for detecting (u,v) coordinate (explanation see Part0.1), so the object cannot obscure the tag(s). As we are going to take
+      photos around the object, if there's only one tag, then it will certainly be obscured. So eventually I chose 6 tags.
+    </p>
+
+    <p><strong>Some object views (45 in total):</strong></p>
+    <div class="image-item">
+      <img src="project4_images/object_views.png" alt="Object views">
+<!--      <span class="caption">[object_views] Multiple views of the object with 6 ArUco tags positioned around it</span>-->
+    </div>
+
+    <!-- Part 0.3 -->
+    <h3>Part 0.3: Estimating Camera Pose</h3>
+
+<p>
+  After calibrating the camera, we can use its intrinsic parameters to determine the
+  pose (orientation and position) for each object image. This reduces to the
+  classic Perspective–n–Point (PnP) problem: given a set of 3D points in the world
+  and their corresponding 2D projections in an image, we estimate the camera’s
+  extrinsic parameters.
+</p>
+
+<p>
+  For each image in the object scan, we detect the single ArUco marker and use
+  <code>cv2.solvePnP()</code> to recover the camera pose.
+</p>
+
+<p><strong>1. Inputs to solvePnP:</strong></p>
+<ul>
+  <li>
+    <code>objectPoints</code>: The 3D coordinates of the ArUco marker’s corners in world space. Because the tag’s
+    physical dimensions are known (here we used <b>0.6m</b> again), these points can be defined explicitly.
+  </li>
+  <li>
+    <code>imagePoints</code>: The detected 2D pixel locations of the tag corners in the image (obtained from
+    <code>detectMarkers()</code>).
+  </li>
+  <li>
+    <code>cameraMatrix</code>: The intrinsic matrix \(K\)
+  </li>
+  <li>
+    <code>distCoeffs</code>: The distortion coefficient vector.
+  </li>
+</ul>
+
+<p><strong>2. Outputs from solvePnP:</strong></p>
+<ul>
+  <li><code>success</code> (bool): Indicates whether pose estimation was successful.</li>
+  <li>
+    <code>rvec</code> (numpy array of shape (3, 1)): The rotation expressed as a Rodrigues vector (convertible to a \(3 \times 3\) rotation matrix using
+    <code>cv2.Rodrigues()</code>).
+  </li>
+  <li>
+    <code>tvec</code> (numpy array of shape (3, 1)): The translation of the camera expressed in world coordinates.
+  </li>
+</ul>
+
+<p>
+  These outputs define the world-to-camera transformation (\(w2c\)). Since later
+  stages require the camera-to-world matrix (\(c2w\)), we will compute its inverse.
+</p>
+
+
+    <p>
+      I captured 45 images of the object I chose so there are 45 cameras. Here are two screenshots of my cloud of cameras in Viser showing the
+      camera frustums' poses and images.
+    </p>
+
+    <div class="image-item">
+      <img src="project4_images/own_frustums.png" alt="Own frustums">
+<!--      <span class="caption">[own_frustums] Camera frustums visualized in Viser showing camera poses</span>-->
+    </div>
+
+    <!-- Part 0.4 -->
+    <h3>Part 0.4: Undistorting images and creating a dataset</h3>
+
+    <p>
+      NeRF assumes a perfect pinhole camera model without distortion, so we need to avoid any lens distortion
+      in the images.
+    </p>
+    <p><strong>Comparison between the original image and the undistorted one (left: original; right: undistorted):</strong></p>
+    <p>
+      They look quite similar since I'm confident in the quality of my images, but still, if you look carefully, the undistorted image appears to
+      be rotated slightly clockwise compared to the original.
+    </p>
+    <p>
+      View 1 (left: original; right: undistorted):
+    </p>
+    <div class="image-item">
+      <img src="project4_images/comparison1.jpg" alt="Comparison 1">
+<!--      <span class="caption">[comparison1] Original image with lens distortion</span>-->
+    </div>
+    <p>
+      View 2 (left: original; right: undistorted):
+    </p>
+    <div class="image-item">
+      <img src="project4_images/comparison2.jpg" alt="Comparison 2">
+<!--      <span class="caption">[comparison2] Undistorted image</span>-->
+    </div>
+
+
+
+    <p><strong>Used 45 images to create my own dataset (result stored as <code>my_data.npz</code>):</strong></p>
+    <p>
+      $$
+      \begin{align}
+      &images\_train: (35, 286, 214, 3) \\
+      &images\_val: (6, 286, 214, 3) \\
+      &c2ws\_train: (35, 4, 4) \\
+      &c2ws\_val: (6, 4, 4) \\
+      &c2ws\_test: (4, 4, 4) \\
+      &H, W = 286, 214 \\
+      &focal = 222.13582064842802
+      \end{align}
+      $$
+    </p>
+
+    <!-- ================= Part 1 ================= -->
+    <h2>Part1 Fit a Neural Field to a 2D Image</h2>
+
+    <p><strong>Eventually we want 3D NeRF, but let's do a 2D one first:</strong></p>
+
+    <p style="text-align: center;">
+      $$
+      3D: F: \{x, y, z, \theta, \phi\} \rightarrow \{r, g, b, \sigma\}
+      $$
+    </p>
+
+    <p style="text-align: center;">
+      $$
+      2D: F: \{u, v\} \rightarrow \{r, g, b\}
+      $$
+    </p>
+
+    <h3>Model Architecture:</h3>
+    <p>
+      Depth: 4 hidden layers<br>
+      Width: 32 or 256 neurons per hidden layer<br>
+      Activation Functions: ReLU for all hidden layers, Sigmoid for the output layer<br>
+      Output Dimension: 3 (RGB)
+    </p>
+
+    <div class="image-item">
+      <img src="project4_images/2d_model.jpg" alt="2D model">
+<!--      <span class="caption">[2d_model] Architecture diagram of the 2D neural field model</span>-->
+    </div>
+
+    <p><strong>Training Hyperparameters:</strong></p>
+    <p>
+      Learning Rate: 0.01<br>
+      Batch Size: 10,000 randomly sampled pixels per iteration<br>
+      Training Iterations: 3000
+    </p>
+
+    <p><strong>Positional Encoding (Important Trick for Better Performance):</strong></p>
+    <p>
+      Max Frequency Parameter (L): 3 or 10 Width (hidden dimension): 32 or 256 Input dimention:
+    </p>
+
+    <p style="text-align: center;">
+      $$
+      2 + 4 \times L \quad (e.g., L = 10 \text{ gives } in\_dim = 42)
+      $$
+    </p>
+
+    <p style="text-align: center;">
+      $$
+      PE(x) = \{x, \sin(2^0\pi x), \cos(2^0\pi x), \sin(2^1\pi x), \cos(2^1\pi x), \ldots, \sin(2^{L-1}\pi x), \cos(2^{L-1}\pi x)\}
+      $$
+    </p>
+
+    <p>
+      in which L is the highest frequency level
+    </p>
+
+    <h3>Training progression visualization</h3>
+
+    <h4>Fox:</h4>
+    <div class="image-item">
+      <img src="project4_images/part1_fox_prog.png" alt="Fox progression">
+      <span class="caption">[fox_prog] Training progression for fox image</span>
+    </div>
+
+    <div class="image-item">
+      <img src="project4_images/part1_fox_comp.png" alt="Fox comparison">
+      <span class="caption">[fox_comp] Final comparison of fox reconstruction</span>
+    </div>
+
+    <h4>Oski:</h4>
+    <div class="image-item">
+      <img src="project4_images/part1_oski_prog.png" alt="Oski progression">
+      <span class="caption">[oski_prog] Training progression for Oski image</span>
+    </div>
+
+    <div class="image-item">
+      <img src="project4_images/part1_oski_comp.png" alt="Oski comparison">
+      <span class="caption">[oski_comp] Final comparison of Oski reconstruction</span>
+    </div>
+
+    <h3>Hyperparameter Comparison</h3>
+
+    <h4>Fox:</h4>
+    <div class="image-item">
+      <img src="project4_images/part1_grid_fox.png" alt="Grid fox">
+      <span class="caption">[grid_fox] Hyperparameter comparison grid for fox image</span>
+    </div>
+
+    <h4>Oski:</h4>
+    <div class="image-item">
+      <img src="project4_images/part1_grid_oski.png" alt="Grid oski">
+      <span class="caption">[grid_oski] Hyperparameter comparison grid for Oski image</span>
+    </div>
+
+    <h3>PNSR of self-selected image:</h3>
+    <p>To calculate PNSR:</p>
+
+    <div class="image-item">
+      <img src="project4_images/attachment:225ec9d1-849c-48fe-9bc9-e9f1b101e91f.png" alt="PSNR formula">
+      <span class="caption">A math formula for calculating PSNR</span>
+    </div>
+
+    <p>PSNR curve:</p>
+
+    <div class="image-item">
+      <img src="project4_images/psnr_curves_fox.png" alt="PSNR curves fox">
+      <span class="caption">[psnr_curves_fox] PSNR curves during training for fox</span>
+    </div>
+
+    <div class="image-item">
+      <img src="project4_images/psnr_curves_oski.png" alt="PSNR curves oski">
+      <span class="caption">[psnr_curves_oski] PSNR curves during training for Oski</span>
+    </div>
+
+    <!-- ================= Part 2 ================= -->
+    <h2>Part2 3D NeRF</h2>
+
+    <h3>Brief Walk Through of the Algorithm</h3>
+    <h4>Process the given datasets (code given)</h4>
+
+    <pre><code>data = np.load(f"lego_200x200.npz")
+
+# Training images: [100, 200, 200, 3]
+images_train = data["images_train"] / 255.0
+
+# Cameras for the training images
+# (camera-to-world transformation matrix): [100, 4, 4]
+c2ws_train = data["c2ws_train"]
+
+# Validation images:
+images_val = data["images_val"] / 255.0
+
+# Cameras for the validation images: [10, 4, 4]
+# (camera-to-world transformation matrix): [10, 200, 200, 3]
+c2ws_val = data["c2ws_val"]
+
+# Test cameras for novel-view video rendering:
+# (camera-to-world transformation matrix): [60, 4, 4]
+c2ws_test = data["c2ws_test"]
+
+# Camera focal length
+focal = data["focal"]  # float
+</code></pre>
+
+<h4>(Part 2.1) Create Rays from Cameras</h4>
+
+<!-- ----------------------------------------------------------- -->
+<!-- 1. Camera to World Coordinate Conversion -->
+<!-- ----------------------------------------------------------- -->
+<p><strong>1. Camera to World Coordinate Conversion</strong></p>
+
+<p>
+  A point observed in world coordinates
+  \(\mathbf{X}_w = (x_w, y_w, z_w)\) can be mapped into the camera’s coordinate
+  frame \(\mathbf{X}_c = (x_c, y_c, z_c)\) through a rigid transformation consisting
+  of a rotation \(\mathbf{R}_{3\times3}\) and a translation vector \(\mathbf{t}\):
+</p>
+
+<p>
+\[
+\begin{bmatrix}
+x_c \\ y_c \\ z_c \\ 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+\mathbf{R}_{3\times3} & \mathbf{t} \\
+\mathbf{0}_{1 \times 3} & 1
+\end{bmatrix}
+\begin{bmatrix}
+x_w \\ y_w \\ z_w \\ 1
+\end{bmatrix}
+\]
+</p>
+
+<p>
+  This block matrix is commonly referred to as the world-to-camera (\(w2c\))
+  extrinsic matrix. Taking its inverse gives the camera-to-world (\(c2w\)) transform,
+  which maps points back into world space.
+</p>
+
+
+
+
+
+<!-- ----------------------------------------------------------- -->
+<!-- 2. Pixel to Camera Coordinate Conversion -->
+<!-- ----------------------------------------------------------- -->
+<p><strong>2. Pixel to Camera Coordinate Conversion</strong></p>
+
+<p>
+  In a standard pinhole camera model, the intrinsic matrix \(\mathbf{K}\) encodes
+  the focal lengths \((f_x, f_y)\) as well as the principal point
+  \((o_x = image\_width/2,\; o_y = image\_height/2)\).
+  This matrix takes a point in the camera’s 3D coordinate system and projects it
+  onto the 2D pixel plane:
+</p>
+
+<p>
+\[
+\mathbf{K} =
+\begin{bmatrix}
+f_x & 0 & o_x \\
+0 & f_y & o_y \\
+0 & 0 & 1
+\end{bmatrix}
+\]
+</p>
+
+<p>
+  Using this intrinsic matrix, a 3D camera-space position \((x_c, y_c, z_c)\) is
+  mapped to pixel coordinates \((u, v)\) as follows:
+</p>
+
+<p>
+\[
+s
+\begin{bmatrix}
+u \\ v \\ 1
+\end{bmatrix}
+=
+\mathbf{K}
+\begin{bmatrix}
+x_c \\ y_c \\ z_c
+\end{bmatrix},
+\quad\text{where } s = z_c
+\]
+</p>
+
+
+
+
+<!-- ----------------------------------------------------------- -->
+<!-- 3. Pixel to Ray -->
+<!-- ----------------------------------------------------------- -->
+<p><strong>3. Pixel to Ray</strong></p>
+
+<p>
+  A ray can be represented by two components: an origin
+  \(\mathbf{r}_o \in \mathbb{R}^3\) and a direction vector
+  \(\mathbf{r}_d \in \mathbb{R}^3\).
+  For a pinhole camera, we construct one such ray for every pixel \((u, v)\) in the image.
+</p>
+
+<p>
+  If we denote the camera-to-world matrix as
+\[
+\begin{bmatrix}
+\mathbf{R} & \mathbf{t} \\
+\mathbf{0} & 1
+\end{bmatrix},
+\]
+  then the origin of all rays is simply the translation component:
+</p>
+
+<p>
+\[
+\mathbf{r}_o = \mathbf{t}
+\]
+</p>
+
+<p>
+  To obtain the direction, we take a point along the ray at depth \(s = 1\) in
+  camera coordinates, convert this point to the world frame using the previous
+  transformations, and subtract the ray origin.
+  Finally, we normalize the resulting vector:
+</p>
+
+<p>
+\[
+\mathbf{r}_d =
+\frac{
+\mathbf{X}_w - \mathbf{r}_o
+}{
+\lVert \mathbf{X}_w - \mathbf{r}_o \rVert_2
+}
+\]
+</p>
+
+
+    <h4>(Part2.2) Sampling</h4>
+
+<p><strong>1. Sampling Rays from Images</strong></p>
+
+<p>
+  To train NeRF efficiently, we avoid processing every pixel from every image at each iteration. Instead, we randomly pick a subset of rays. Each ray corresponds to a pixel and is determined using the image’s camera intrinsics and extrinsics. Since we have multiple training images, sampling rays can be done in different ways, but they all aim to produce a diverse set of viewpoints. In general, the idea is to choose a pixel index, convert it to a camera ray, and associate it with the pixel’s ground-truth color. When sampling globally across all images, every pixel has an equal chance of being selected, ensuring that rays span a broad distribution of poses and viewing directions.
+</p>
+
+<p>To sample N rays at every training iteration:</p>
+<ul>
+  <li>Option 1: first sample M images, and then sample N // M rays from every image.</li>
+  <li>Option 2 : flatten all pixels from all images and do a global sampling once to get N rays from all images.</li>
+</ul>
+<p>I chose <strong>Option 2</strong>.</p>
+
+<p><strong>2. Sampling Points along Rays</strong></p>
+
+<p>
+  Once we obtain a ray, NeRF evaluates the scene at several points along that ray to approximate the continuous volumetric rendering integral. This requires selecting a sequence of depth values between a near bound and a far bound, then converting each depth value into a 3D coordinate using \(\mathbf{x}(t)=\mathbf{r}_o+t\mathbf{r}_d\). To avoid overfitting to a fixed set of 3D locations, the depth samples are typically perturbed slightly within their intervals during training. These sampled 3D points are then fed into the NeRF model to query density and color, which are later accumulated to compute the pixel’s predicted RGB value.
+</p>
+
+<p>(for lego.npz) near = 2.0, far = 6.0, n_samples = 64</p>
+
+<h4>(Part2.3) Putting all Dataloading together</h4>
+<p>Here are two images of the frustums:</p>
+
+<div class="image-item">
+  <img src="project4_images/lego_frustums.png" alt="Lego frustums">
+  <span class="caption">[lego_frustums] Camera frustums for the Lego dataset</span>
+</div>
+
+
+    <h4>(Part2.4) Neural Radiance Field</h4>
+    <p>We simply adjust the following ways of the model architecture of 2D NeRF:</p>
+    <p><strong>1. Input:</strong></p>
+    <ul>
+      <li>2D pixel coordinates -> 3D pixel coordinates</li>
+      <li>a 3D vector as the ray direction.</li>
+    </ul>
+    <p><strong>2. Output: color (3D) + density (new, 1D)</strong></p>
+    <p><strong>3. Model:</strong></p>
+    <ul>
+      <li>PE frequency level: L = 10 for coordinates, L = 4 for ray direction</li>
+      <li>number of layers = 8, width = 256</li>
+      <li>Inject the input (after PE) of the MLP through concatenation so that the MLP will not easily forget the input.</li>
+    </ul>
+
+    <div class="image-item">
+      <img src="project4_images/3d_model.jpg" alt="3D model">
+      <span class="caption">[3d_model] Architecture diagram of the 3D NeRF model</span>
+    </div>
+
+    <p><strong>4. Hyperparameters:</strong></p>
+    <ul>
+      <li>iterations = 2000</li>
+      <li>batch size = 10k</li>
+      <li>learning rate = 5e–4</li>
+      <li>n_samples = 64</li>
+      <li>near = 2.0</li>
+      <li>far = 6.0</li>
+    </ul>
+
+    <h4>(Part2.5) Volume Rendering</h4>
+
+    <h3>Visualization of rays and samples with cameras (when iteration = 1)</h3>
+    <p>
+      Blue dots: cameras (ray origins)<br>
+      Green lines: rays (100 rays are a bit too crowded so I chose 50)<br>
+      Orange triangles: samples along the rays
+    </p>
+
+    <div class="image-item">
+      <img src="project4_images/rays_dense_newcolor.png" alt="Rays dense">
+      <span class="caption">[rays_dense_newcolor] Visualization of camera positions, rays, and sample points</span>
+    </div>
+
+    <h3>Training progression visualization with predicted images across iterations</h3>
+
+    <div class="image-item">
+      <img src="project4_images/lego_training_proc.png" alt="Lego training process">
+      <span class="caption">[lego_training_process] Training progression showing predicted images improving over iterations</span>
+    </div>
+
+    <h3>PSNR & Loss Curves</h3>
+
+    <div class="image-item">
+      <img src="project4_images/lego_curves.png">
+<!--      <span class="caption">[lego_psnr] PSNR curve over training iterations for Lego dataset</span>-->
+    </div>
+
+
+    <h3>Spherical rendering video of the Lego</h3>
+    <p>
+      We use c2ws_test to generate novel views of the reconstructed object.
+    </p>
+
+    <div class="image-item">
+      <video controls style="max-width: 100%; border-radius: 6px; border: 1px solid #ddd;">
+        <source src="project4_images/lego.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <span class="caption">Novel view video rendering of the Lego object</span>
+    </div>
+
+    <h2>Part 2.6: Training with your own data</h2>
+
+    <h3>GIF showing novel views</h3>
+
+    <div class="image-item">
+      <img src="project4_images/own_data.gif" alt="My data novel views">
+      <span class="caption">Novel views rendered from my own captured data</span>
+    </div>
+      <p>
+          <b>
+              IMPORTANT: The scene seems broken but it's because the number of gradient steps is not enough and unfortunately I'm running out of time,
+              but if you look at the intermediate rendered scenes below, you would find that it's functioning correctly.
+          </b>
+      </p>
+
+    <h3>Hyperparameters</h3>
+    <ul>
+      <li>iterations = 2000</li>
+      <li>batch size = 10k</li>
+      <li>learning rate = 5e–4</li>
+      <li>n_samples = 64</li>
+      <li>near = 1.0</li>
+      <li>far = 3.5</li>
+    </ul>
+
+    <p>Changes in the code: no changes other than changing render_video() to render_gif()</p>
+      <p>
+          Analysis: Since the number of frustums is fewer than the one of lego and lego's frustums are better distributed, we want to increase the number of iterations,
+          which would increase the quality as well as the training time. The two parameters 'near' and 'far' are adjusted based on the visualized scene using viser
+          so that the sample points on the rays would be within the sphere of frustums and at the same time cover as much space as possible.
+
+
+      </p>
+
+    <h3>PSNR & Loss Curves</h3>
+      <div class="image-item">
+      <img src="project4_images/lego_curves.png">
+<!--      <span class="caption">[lego_psnr] PSNR curve over training iterations for Lego dataset</span>-->
+    </div>
+
+    <h3>Intermediate renders of the scene during training</h3>
+            <div class="image-item">
+      <img src="project4_images/own_training_proc_2000.png">
+<!--      <span class="caption">[lego_psnr] PSNR curve over training iterations for Lego dataset</span>-->
+    </div>
+
+  </div>
+</body>
+</html>
