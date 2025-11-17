@@ -297,8 +297,8 @@ distortion\_coefficients =
     </p>
     <p><strong>Comparison between the original image and the undistorted one (left: original; right: undistorted):</strong></p>
     <p>
-      They look quite similar since I'm confident in the quality of my images, but still, if you look carefully, the undistorted image appears to
-      be rotated slightly clockwise compared to the original.
+      They look quite similar since I'm confident in the quality of my images, but still,
+        there are some differences if you compare the edges of each pair.
     </p>
     <p>
       View 1 (left: original; right: undistorted):
@@ -351,10 +351,12 @@ distortion\_coefficients =
 
     <h3>Model Architecture:</h3>
     <p>
+        Input: 2D coordinates<br>
+        Output: 3D RGB values<br>
       Depth: 4 hidden layers<br>
       Width: 32 or 256 neurons per hidden layer<br>
       Activation Functions: ReLU for all hidden layers, Sigmoid for the output layer<br>
-      Output Dimension: 3 (RGB)
+
     </p>
 
     <div class="image-item">
@@ -365,22 +367,21 @@ distortion\_coefficients =
     <p><strong>Training Hyperparameters:</strong></p>
     <p>
       Learning Rate: 0.01<br>
-      Batch Size: 10,000 randomly sampled pixels per iteration<br>
+      Batch Size: 10k<br>
       Training Iterations: 3000
     </p>
 
-    <p><strong>Positional Encoding (Important Trick for Better Performance):</strong></p>
-    <p>
-      Max Frequency Parameter (L): 3 or 10 Width (hidden dimension): 32 or 256 Input dimention:
-    </p>
+    <p><strong>Positional Encoding (Important Trick for Reconstructing Details):</strong></p>
 
-    <p style="text-align: center;">
-      $$
-      2 + 4 \times L \quad (e.g., L = 10 \text{ gives } in\_dim = 42)
-      $$
-    </p>
-
-    <p style="text-align: center;">
+      <p>
+          MLPs are biased toward learning very smooth, low-frequency functions (spectral bias).
+They learn low-frequency patterns easily but
+          struggle with high-frequency signals (sharp edges, textures, glossy highlights).
+          Without positional encoding, the input of the MLPs are low-dimension,
+          leading to blurry output images since the MLPs cannot learn the details well.
+          Positional encoding basically expands the input from low dimensions to high dimensions using the formula below.
+      </p>
+          <p style="text-align: center;">
       $$
       PE(x) = \{x, \sin(2^0\pi x), \cos(2^0\pi x), \sin(2^1\pi x), \cos(2^1\pi x), \ldots, \sin(2^{L-1}\pi x), \cos(2^{L-1}\pi x)\}
       $$
@@ -389,29 +390,41 @@ distortion\_coefficients =
     <p>
       in which L is the highest frequency level
     </p>
+    <p>
+      Max Frequency Parameter (L): 3 or 10 <br>
+        Input dimention:
+    </p>
+
+    <p style="text-align: center;">
+      $$
+      2 + 4 \times L \quad (e.g., L = 10 \text{ gives } in\_dim = 42)
+      $$
+    </p>
+
+
 
     <h3>Training progression visualization</h3>
 
-    <h4>Fox:</h4>
+    <h4>Fox (final PSNR = 27.11 dB):</h4>
     <div class="image-item">
       <img src="project4_images/part1_fox_prog.png" alt="Fox progression">
-      <span class="caption">[fox_prog] Training progression for fox image</span>
+<!--      <span class="caption">[fox_prog] Training progression for fox image</span>-->
     </div>
 
     <div class="image-item">
       <img src="project4_images/part1_fox_comp.png" alt="Fox comparison">
-      <span class="caption">[fox_comp] Final comparison of fox reconstruction</span>
+<!--      <span class="caption">[fox_comp] Final comparison of fox reconstruction</span>-->
     </div>
 
-    <h4>Oski:</h4>
+    <h4>Oski (final PSNR = 27.39 dB):</h4>
     <div class="image-item">
       <img src="project4_images/part1_oski_prog.png" alt="Oski progression">
-      <span class="caption">[oski_prog] Training progression for Oski image</span>
+<!--      <span class="caption">[oski_prog] Training progression for Oski image</span>-->
     </div>
 
     <div class="image-item">
       <img src="project4_images/part1_oski_comp.png" alt="Oski comparison">
-      <span class="caption">[oski_comp] Final comparison of Oski reconstruction</span>
+<!--      <span class="caption">[oski_comp] Final comparison of Oski reconstruction</span>-->
     </div>
 
     <h3>Hyperparameter Comparison</h3>
@@ -419,30 +432,37 @@ distortion\_coefficients =
     <h4>Fox:</h4>
     <div class="image-item">
       <img src="project4_images/part1_grid_fox.png" alt="Grid fox">
-      <span class="caption">[grid_fox] Hyperparameter comparison grid for fox image</span>
+<!--      <span class="caption">[grid_fox] Hyperparameter comparison grid for fox image</span>-->
     </div>
 
     <h4>Oski:</h4>
     <div class="image-item">
       <img src="project4_images/part1_grid_oski.png" alt="Grid oski">
-      <span class="caption">[grid_oski] Hyperparameter comparison grid for Oski image</span>
+<!--      <span class="caption">[grid_oski] Hyperparameter comparison grid for Oski image</span>-->
     </div>
+
+      <p>
+          <b>Explanations:</b><br>
+      </p>
+      <p>
+          Changing L (max frequency level): <br>
+          Controls what frequencies the network can represent. Low L acts as strong low-pass filter; High L can represent high-frequency detail.
+      </p>
+      <p>
+          Changing W (width of the MLP): <br>
+          Controls the complexity of the nenural network function. The number of parameters increase as W increases,
+          and in neural network, the more parameters the more detailed expressions.
+      </p>
 
     <h3>PNSR of self-selected image:</h3>
     <p>To calculate PNSR:</p>
 
-    <div class="image-item">
-      <img src="project4_images/attachment:225ec9d1-849c-48fe-9bc9-e9f1b101e91f.png" alt="PSNR formula">
-      <span class="caption">A math formula for calculating PSNR</span>
-    </div>
+<p>
+  \( \text{PSNR} = 10 \cdot \log_{10}\left(\frac{1}{\text{MSE}}\right) \)
+</p>
 
-    <p>PSNR curve:</p>
 
-    <div class="image-item">
-      <img src="project4_images/psnr_curves_fox.png" alt="PSNR curves fox">
-      <span class="caption">[psnr_curves_fox] PSNR curves during training for fox</span>
-    </div>
-
+    <p>PSNR curve for my own image (four cases):</p>
     <div class="image-item">
       <img src="project4_images/psnr_curves_oski.png" alt="PSNR curves oski">
       <span class="caption">[psnr_curves_oski] PSNR curves during training for Oski</span>
@@ -616,17 +636,21 @@ x_c \\ y_c \\ z_c
     <h4>(Part2.2) Sampling</h4>
 
 <p><strong>1. Sampling Rays from Images</strong></p>
-
-<p>
-  To train NeRF efficiently, we avoid processing every pixel from every image at each iteration. Instead, we randomly pick a subset of rays. Each ray corresponds to a pixel and is determined using the image’s camera intrinsics and extrinsics. Since we have multiple training images, sampling rays can be done in different ways, but they all aim to produce a diverse set of viewpoints. In general, the idea is to choose a pixel index, convert it to a camera ray, and associate it with the pixel’s ground-truth color. When sampling globally across all images, every pixel has an equal chance of being selected, ensuring that rays span a broad distribution of poses and viewing directions.
-</p>
-
 <p>To sample N rays at every training iteration:</p>
 <ul>
   <li>Option 1: first sample M images, and then sample N // M rays from every image.</li>
   <li>Option 2 : flatten all pixels from all images and do a global sampling once to get N rays from all images.</li>
 </ul>
 <p>I chose <strong>Option 2</strong>.</p>
+      <p>
+          The main idea of sampling rays from images are also illustrated below
+          (give credit to Aqeel Anwar: https://medium.com/data-science/a-12-step-visual-guide-to-understanding-nerf-representing-scenes-as-neural-radiance-fields-24a36aef909a).
+      </p>
+          <div class="image-item">
+      <img src="project4_images/part2_2_illustration1.jpg" alt="Fox progression">
+<!--      <span class="caption">[fox_prog] Training progression for fox image</span>-->
+    </div>
+
 
 <p><strong>2. Sampling Points along Rays</strong></p>
 
@@ -635,9 +659,30 @@ x_c \\ y_c \\ z_c
 </p>
 
 <p>(for lego.npz) near = 2.0, far = 6.0, n_samples = 64</p>
+      <p>
+          Again, here's an illustration from Aqeel Anwar. After we get the corresponding ray from a pixel,
+          we sample a specific number of 3D points along the ray between the near plane and the far plane.
+          Then, each 3D coordinate (xyz) as well as the corresponding view direction (2D) would be put into the MLP for training.
+          For a specific ray, the viewing directions for all the points are the same.
+      </p>
+          <div class="image-item">
+      <img src="project4_images/part2_2_illustration2.jpg" alt="Fox comparison">
+<!--      <span class="caption">[fox_comp] Final comparison of fox reconstruction</span>-->
+    </div>
 
 <h4>(Part2.3) Putting all Dataloading together</h4>
-<p>Here are two images of the frustums:</p>
+      <p>
+          I constructed a RaysData class, which is basically the custom dataloader used in NeRF.
+Its job is to store the multi-view images and their camera poses, convert pixel coordinates into rays, and randomly sample rays during training.
+      For a more detailed walk through, it first converts all inputs to tensors on the same device,
+          then precomputes a full pixel grid for each image
+          and associates every pixel with its camera index.
+          When sample_rays(B) is called, the dataloader uniformly selects B pixels from all cameras,
+          retrieves the corresponding camera-to-world matrices,
+          and converts each pixel into a world-space ray by computing its origin at the camera center
+          and its direction from normalized camera-space coordinates.
+          Eventually, the function returns ray origins, directions, pixel coordinates, and camera IDs.</p>
+<p>Using the provided code, ere are two images of the frustums:</p>
 
 <div class="image-item">
   <img src="project4_images/lego_frustums.png" alt="Lego frustums">
@@ -652,11 +697,11 @@ x_c \\ y_c \\ z_c
       <li>2D pixel coordinates -> 3D pixel coordinates</li>
       <li>a 3D vector as the ray direction.</li>
     </ul>
-    <p><strong>2. Output: color (3D) + density (new, 1D)</strong></p>
+    <p><strong>2. Output: </strong>color (3D) + density (new, 1D)</p>
     <p><strong>3. Model:</strong></p>
     <ul>
-      <li>PE frequency level: L = 10 for coordinates, L = 4 for ray direction</li>
-      <li>number of layers = 8, width = 256</li>
+      <li>PE max frequency level: L = 10 for coordinates, L = 4 for ray direction</li>
+      <li>depth = 8, width = 256</li>
       <li>Inject the input (after PE) of the MLP through concatenation so that the MLP will not easily forget the input.</li>
     </ul>
 
@@ -665,7 +710,7 @@ x_c \\ y_c \\ z_c
       <span class="caption">[3d_model] Architecture diagram of the 3D NeRF model</span>
     </div>
 
-    <p><strong>4. Hyperparameters:</strong></p>
+    <p><strong>4. Hyperparameters (for lego.npz):</strong></p>
     <ul>
       <li>iterations = 2000</li>
       <li>batch size = 10k</li>
@@ -676,6 +721,50 @@ x_c \\ y_c \\ z_c
     </ul>
 
     <h4>(Part2.5) Volume Rendering</h4>
+<p>
+  Volume rendering describes how a ray accumulates color as it travels through a scene.
+  At every tiny step along the ray, the local density
+  \( \sigma \) determines how likely the ray is to "stop" and reveal the color there,
+  while the transmittance \( T(t) \) controls how much light from farther points can still pass through.
+  The continuous formulation integrates these infinitesimal contributions:
+</p>
+
+<p style="text-align:center;">
+  \[
+  C(\mathbf{r}) = \int_{t_n}^{t_f}
+  T(t)\,\sigma(\mathbf{r}(t))\,c(\mathbf{r}(t),\mathbf{d})\, dt,
+  \qquad
+  T(t) = \exp\!\left(-\int_{t_n}^{t} \sigma(\mathbf{r}(s))\, ds\right)
+  \]
+</p>
+
+<p>
+  Since pixels are discrete,
+  NeRF uses a discrete approximation. The ray is sampled at
+  \(N\) points, and each point contributes its color depending on
+  (1) the probability the ray has not terminated before that sample
+  (the accumulated transmittance \(T_i\)) and
+  (2) the probability of terminating <em>at</em> that sample.
+  Summing these weighted contributions yields:
+</p>
+
+<p style="text-align:center;">
+  \[
+  \hat{C}(\mathbf{r}) =
+  \sum_{i=1}^{N}
+  T_i \left(1 - \exp(-\sigma_i \delta_i)\right)c_i,
+  \qquad
+  T_i = \exp\!\left(-\sum_{j=1}^{i-1} \sigma_j \delta_j \right)
+  \]
+</p>
+
+<p>
+  Here, \(c_i\) is the color predicted at sample \(i\),
+  \(T_i\) is the probability that the ray reaches sample \(i\) without terminating,
+  and \(1 - e^{-\sigma_i \delta_i}\) is the probability of ending at that point.
+</p>
+
+
 
     <h3>Visualization of rays and samples with cameras (when iteration = 1)</h3>
     <p>
@@ -722,19 +811,28 @@ x_c \\ y_c \\ z_c
     <h3>GIF showing novel views</h3>
 
     <div class="image-item">
-      <img src="project4_images/own_data.gif" alt="My data novel views">
-      <span class="caption">Novel views rendered from my own captured data</span>
+      <img src="project4_images/my_data.gif" alt="My data novel views">
+<!--      <span class="caption">Novel views rendered from my own captured data</span>-->
+    </div>
+          <div class="image-item">
+      <img src="project4_images/own_novel_views.png" alt="My data novel views">
+<!--      <span class="caption">Novel views rendered from my own captured data</span>-->
     </div>
       <p>
           <b>
               IMPORTANT: The scene seems broken but it's because the number of gradient steps is not enough and unfortunately I'm running out of time,
-              but if you look at the intermediate rendered scenes below, you would find that it's functioning correctly.
+              but if you look at the intermediate rendered scenes below, you would find that the implementations are correct.
+          </b>
+      </p>
+            <p>
+          <b>
+              Also, the final PNSR is over 25dB (see in the PSNR curve below).
           </b>
       </p>
 
     <h3>Hyperparameters</h3>
     <ul>
-      <li>iterations = 2000</li>
+      <li>iterations = 9000</li>
       <li>batch size = 10k</li>
       <li>learning rate = 5e–4</li>
       <li>n_samples = 64</li>
@@ -747,19 +845,29 @@ x_c \\ y_c \\ z_c
           Analysis: Since the number of frustums is fewer than the one of lego and lego's frustums are better distributed, we want to increase the number of iterations,
           which would increase the quality as well as the training time. The two parameters 'near' and 'far' are adjusted based on the visualized scene using viser
           so that the sample points on the rays would be within the sphere of frustums and at the same time cover as much space as possible.
-
-
       </p>
+
+      <h3>Visualization of rays and samples with cameras (when iteration = 1)</h3>
+    <p>
+      Blue dots: cameras (ray origins)<br>
+      Green lines: rays (100 rays are a bit too crowded so I chose 50)<br>
+      Orange triangles: samples along the rays
+    </p>
+
+    <div class="image-item">
+      <img src="project4_images/rays_dense_newcolor2.png" alt="Rays dense">
+      <span class="caption">[rays_dense_newcolor] Visualization of camera positions, rays, and sample points</span>
+    </div>
 
     <h3>PSNR & Loss Curves</h3>
       <div class="image-item">
-      <img src="project4_images/lego_curves.png">
+      <img src="project4_images/own_curves.png">
 <!--      <span class="caption">[lego_psnr] PSNR curve over training iterations for Lego dataset</span>-->
     </div>
 
     <h3>Intermediate renders of the scene during training</h3>
             <div class="image-item">
-      <img src="project4_images/own_training_proc_2000.png">
+      <img src="project4_images/own_training_proc_9000.png">
 <!--      <span class="caption">[lego_psnr] PSNR curve over training iterations for Lego dataset</span>-->
     </div>
 
